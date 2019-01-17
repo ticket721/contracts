@@ -1,0 +1,18 @@
+{
+  "name": "@horyus/t721-contracts",
+  "private": true,
+  "version": "1.0.0",
+  "description": "t721-contracts - Ethereum Smart Contracts for ticket721",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mortimr/t721-contracts.git"
+  },
+  "author": "Iulian Rotaru",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mortimr/t721-contracts/issues"
+  },
+  "homepage": "https://github.com/mortimr/t721-contracts#readme"
+}
