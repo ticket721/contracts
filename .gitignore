@@ -3,3 +3,6 @@ node_modules
 portal
 build
 truffle-config.js
+
+.zos.session
+zos.*.json
