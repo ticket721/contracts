@@ -1,6 +1,12 @@
 # contracts
 Ethereum Smart Contracts for ticket721
 
+## Status
+
+| Name | Shield |
+| :--: | :----: |
+| Travis | [![Build Status](https://travis-ci.org/ticket721/contracts.svg?branch=develop)](https://travis-ci.org/ticket721/contracts) |
+
 ## Tasks
 
 | Name | Description |
