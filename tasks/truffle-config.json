@@ -1,0 +1,10 @@
+{
+    "networks": {},
+
+    "mocha": {},
+
+    "compilers": {
+        "solc": {
+        }
+    }
+}
