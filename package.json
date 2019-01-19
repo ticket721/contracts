@@ -1,18 +1,36 @@
 {
-  "name": "@horyus/t721-contracts",
-  "private": true,
-  "version": "1.0.0",
-  "description": "t721-contracts - Ethereum Smart Contracts for ticket721",
-  "main": "index.js",
-  "scripts": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mortimr/t721-contracts.git"
-  },
-  "author": "Iulian Rotaru",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mortimr/t721-contracts/issues"
-  },
-  "homepage": "https://github.com/mortimr/t721-contracts#readme"
+    "name": "@horyus/t721-contracts",
+    "private": true,
+    "version": "1.0.0",
+    "description": "t721-contracts - Ethereum Smart Contracts for ticket721",
+    "main": "index.js",
+    "scripts": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mortimr/t721-contracts.git"
+    },
+    "author": "Iulian Rotaru",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/mortimr/t721-contracts/issues"
+    },
+    "homepage": "https://github.com/mortimr/t721-contracts#readme",
+    "dependencies": {
+        "@htmlacademy/editorconfig-cli": "^1.0.0",
+        "gulp-shell": "^0.6.5",
+        "husky": "^1.3.1",
+        "portalize": "1.0.3",
+        "rimraf": "^2.6.3",
+        "signale": "^1.3.0",
+        "truffle": "5.0.2"
+    },
+    "editorconfig-cli": [
+        "./package.json",
+        "./contracts/*.sol"
+    ],
+    "husky": {
+        "hooks": {
+            "pre-commit": "editorconfig-cli"
+        }
+    }
 }
