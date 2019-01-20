@@ -1,5 +1,6 @@
 const {series} = require('gulp');
 
-const Contract = require('./Contract');
+const AdministrationBoard = require('./AdministrationBoard');
+const T721 = require('./T721');
 
-module.exports = series(Contract);
+module.exports = series(AdministrationBoard, T721);

@@ -9,3 +9,4 @@ const apply_config = async () => {
 };
 
 exports.test_configure = apply_config;
+exports.test_clean = require('./local').local_clean;
