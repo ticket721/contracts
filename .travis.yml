@@ -7,4 +7,5 @@ install:
 script:
     - npm run test:editorconfig
     - npm run test:configure
-    - npm run test:mocha
+    - npm run test:solidity-coverage
+    - npm run coverage:upload

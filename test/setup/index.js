@@ -3,14 +3,40 @@ const path = require('path');
 const url_parse = require('url-parse');
 const glob = require('glob');
 const {exec} = require('child_process');
-const signale = require('signale');
+const {Signale} = require('signale');
 
-const NET = 'test';
-let NET_ID;
+const signale_options = {
+    disabled: false,
+    interactive: false,
+    stream: process.stdout,
+    scope: 'test',
+    types: {
+        info: {
+            badge: '[I]',
+            color: 'blue',
+            label: ''
+        },
+        success: {
+            badge: '[+]',
+            color: 'green',
+            label: ''
+        }
+    }
+};
+
+const signale = new Signale(signale_options);
+
+module.exports.NET = {
+    name: process.env.T721_COVERAGE ? 'development' : 'test',
+    id: null
+};
+
+const node_modules_path = () => {
+    return './node_modules';
+};
 
 // Generate ganache snapshot ID => save current state of bc
 const snapshot = () => {
-    signale.info('Recovering state snapshot ...');
     return new Promise((ok, ko) => {
         web3.currentProvider.send({
             method: "evm_snapshot",
@@ -21,7 +47,6 @@ const snapshot = () => {
             if (error) {
                 return ko(error);
             } else {
-                signale.success('Recovered state snapshot id');
                 ok(res.result);
             }
         })
@@ -30,7 +55,6 @@ const snapshot = () => {
 
 // Revert the state of the blockchain to previously saved state
 const revert = (snap_id) => {
-    signale.info('Reverting state ...');
     return new Promise((ok, ko) => {
         web3.currentProvider.send({
             method: "evm_revert",
@@ -41,7 +65,6 @@ const revert = (snap_id) => {
             if (error) {
                 return ko(error);
             } else {
-                signale.success('Reverted state');
                 ok(res.result);
             }
         })
@@ -51,11 +74,11 @@ const revert = (snap_id) => {
 
 // Configure zos session to use the test network
 const session = async () => {
-    const coinbase = await web3.eth.getCoinbase();
+    const accounts = await web3.eth.getAccounts();
 
     return new Promise((ok, ko) => {
         signale.info('Running zos session ...');
-        exec(`./node_modules/.bin/zos session --network ${NET} --from ${coinbase}`, (err, stdout, stderr) => {
+        exec(`${node_modules_path()}/.bin/zos session --network ${module.exports.NET.name} --from ${accounts[9]}`, (err, stdout, stderr) => {
             if (err) {
                 console.error(stderr);
                 return ko(err);
@@ -71,7 +94,7 @@ const session = async () => {
 const push = async () => {
     return new Promise((ok, ko) => {
         signale.info('Running zos push ...');
-        exec(`./node_modules/.bin/zos push --network ${NET}`, (err, stdout, stderr) => {
+        exec(`${node_modules_path()}/.bin/zos push --network ${module.exports.NET.name}`, (err, stdout, stderr) => {
             if (err) {
                 console.error(stderr);
                 return ko(err);
@@ -92,7 +115,7 @@ const remove_config_update = async () => {
     const end = `module.exports = ${JSON.stringify(config, null, 4)}`;
     fs.writeFileSync('./truffle-config.js', end);
 
-    const zos_out_files = glob.sync(`zos.*${NET_ID}.json`);
+    const zos_out_files = glob.sync(`zos.*${module.exports.NET.id}.json`);
 
     for (const file of zos_out_files) {
         fs.unlinkSync(path.join(path.resolve(), file));
@@ -103,30 +126,56 @@ const remove_config_update = async () => {
 // Update truffle configuration to add test network
 const update_config = async () => {
     signale.info('Updating config ...');
-    const config = require('../../truffle-config.js');
-    NET_ID = await web3.eth.net.getId();
-    const url = new url_parse((await web3.currentProvider).host);
 
-    config.networks = {
-        ...config.networks,
-        test: {
-            host: url.hostname,
-            port: url.port,
-            network_id: NET_ID
+    // If coverage is enable, solidity-coverage will generate the configuration file, we sould only copy it
+    // Also check if no node_modules are present, this means this is the first tested file and that we should link the old directory
+    if (process.env.T721_COVERAGE) {
+        module.exports.NET.id = await web3.eth.net.getId();
+        fs.copyFileSync('./truffle.js', './truffle-config.js');
+        if (!fs.existsSync('./node_modules')) {
+            fs.symlinkSync('../node_modules', './node_modules');
         }
-    };
 
-    const end = `module.exports = ${JSON.stringify(config, null, 4)}`;
-    fs.writeFileSync('./truffle-config.js', end);
+        // If there is no coverage, the configuration contains no information about the network, and we need to fill it manually
+    } else {
+        const config = require('../../truffle-config.js');
+        module.exports.NET.id = await web3.eth.net.getId();
+        const url = new url_parse((await web3.currentProvider).host);
+
+        config.networks = {
+            ...config.networks,
+            test: {
+                host: url.hostname,
+                port: url.port,
+                network_id: module.exports.NET.id
+            }
+        };
+
+        const end = `module.exports = ${JSON.stringify(config, null, 4)}`;
+        fs.writeFileSync('./truffle-config.js', end);
+    }
     signale.success('Updated config');
 };
 
+// Recover deployed instance from artifacts
+const instance = async (contract, address) => {
 
-module.exports.NET = NET;
-module.exports.NET_ID = NET_ID;
+    const artifact = (await artifacts.require(contract));
+    if (!address) {
+        const live = require(`../../build/contracts/${contract}.json`);
+        return artifact.at(live.networks[module.exports.NET.id].address);
+    } else {
+        return artifact.at(address);
+    }
+
+};
+
+module.exports.signale = signale;
+module.exports.instance = instance;
 module.exports.revert = revert;
 module.exports.session = session;
 module.exports.remove_config_update = remove_config_update;
 module.exports.update_config = update_config;
 module.exports.push = push;
 module.exports.snapshot = snapshot;
+module.exports.node_modules_path = node_modules_path;
