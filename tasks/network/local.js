@@ -37,6 +37,13 @@ const clean_config = async () => {
     }
 };
 
+const clean_events = async () => {
+    if (fs.existsSync('./contracts/events')) {
+        signale.info('truffle: remove events');
+        rimraf.sync('./contracts/events');
+    }
+};
+
 const clean_zos_output = async () => {
     const matchings = glob.sync('zos.*.json');
     for (const match of matchings) {
@@ -56,6 +63,7 @@ const local_clean = async () => {
     await clean_config();
     await clean_zos_output();
     await clean_portal();
+    await clean_events();
 };
 
 exports.local_configure = apply_config;

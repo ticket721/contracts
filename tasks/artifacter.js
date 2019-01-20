@@ -6,6 +6,11 @@ const artifacter = async () => {
     const contracts_dir = path.join(path.resolve('.'), 'build/contracts');
     const artifacts = fs.readdirSync(contracts_dir);
 
+    Portalize.get.setPortal('./portal');
+    Portalize.get.setModuleName('contracts');
+
+    const config = Portalize.get.get('network.json', {module: 'network'});
+
     for (const artifact_file of artifacts) {
         const artifact = require(path.join(contracts_dir, artifact_file));
         const reformat = {
@@ -16,7 +21,12 @@ const artifacter = async () => {
             networks: artifact.networks
         };
 
-        Portalize.get.add(`${artifact.contractName}.artifact.json`, reformat, {desc: `deployed ${artifact.contractName}`});
+        let desc = undefined;
+        if (reformat.networks[config.network_id]) {
+            desc = `deployed ${artifact.contractName}`
+        }
+
+        Portalize.get.add(`${artifact.contractName}.artifact.json`, reformat, {desc});
 
     }
 };
