@@ -6,3 +6,5 @@ truffle-config.js
 
 .zos.session
 zos.*.json
+coverage
+coverage.json
