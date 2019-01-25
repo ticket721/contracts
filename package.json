@@ -48,7 +48,8 @@
         "./test/**.js",
         "./test/*/**.js",
         ".*.yml",
-        "*.json"
+        "*.json",
+        "*.js"
     ],
     "husky": {
         "hooks": {

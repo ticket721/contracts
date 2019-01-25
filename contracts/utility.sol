@@ -19,4 +19,13 @@ library utility {
         return size > 0;
     }
 
+    function i_do_not_keep_the_change(uint256 price) internal {
+        require(msg.value >= price, "Insufficient funds with transaction");
+
+        if (msg.value > price) {
+            msg.sender.transfer(msg.value - price);
+        }
+
+    }
+
 }
