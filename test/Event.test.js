@@ -13,19 +13,19 @@ let accounts = [];
 
 const ZEROS = '0x0000000000000000000000000000000000000000';
 
-const createT721 = async () => {
-    signale.info('Creating T721 proxy ...');
-    return new Promise((ok, ko) => {
-        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args Test,TST --network ${NET.name}`, (err, stdout, stderr) => {
-            if (err) {
-                console.error(stderr);
-                return ko(err);
-            }
-            signale.success('Created T721 proxy');
-            ok();
-        })
-    })
-};
+//const createT721 = async () => {
+//    signale.info('Creating T721 proxy ...');
+//    return new Promise((ok, ko) => {
+//        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args Test,TST --network ${NET.name}`, (err, stdout, stderr) => {
+//            if (err) {
+//                console.error(stderr);
+//                return ko(err);
+//            }
+//            signale.success('Created T721 proxy');
+//            ok();
+//        })
+//    })
+//};
 
 let events = {};
 
@@ -41,10 +41,10 @@ const event_names = {
 };
 
 const create = async () => {
-    await createT721();
-    for (const event of Object.values(event_names)) {
-        await createEvent(event);
-    }
+//    await createT721();
+    //for (const event of Object.values(event_names)) {
+    //    await createEvent(event);
+    //}
 };
 
 contract('Event', () => {

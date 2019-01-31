@@ -5,5 +5,11 @@ module.exports = {
     testCommand: 'truffle test',
     skipFiles: [
         ...fs.readdirSync('./contracts/events').map(file => 'events/' + file),
+        'marketers/MarketerTester.sol',
+        'approvers/ApproverTester.sol',
+        'MarketerInterface.sol',
+        'ApproverInterface.sol',
+        'MinterInterface.sol',
+        'EventInterface.sol'
     ]
 };

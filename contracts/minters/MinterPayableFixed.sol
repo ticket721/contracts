@@ -1,4 +1,4 @@
-// !@! MinterPayableFixed:Mipafi:0.1.0:0.5.0:uint256,uint256: !@!
+// !@! MinterPayableFixed:Mipafi:0.1.0:0.5.0:uint256,uint256,uint256,string memory: !@!
 //
 //    /$$    /$$$$$$$$ /$$$$$$    /$$
 //   | $$   |_____ $$//$$__  $$ /$$$$
@@ -14,27 +14,23 @@ pragma solidity 0.5.0;
 
 import "../utility.sol";
 import "../T721V0.sol";
+import "../MinterInterface.sol";
 
-contract MinterPayableFixed {
+contract MinterPayableFixed is Minter {
 
     uint256 private sell_price;
     uint256 private ticket_cap;
     uint256 private tickets_sold;
     address private t721;
+    string private uri;
+    uint256 private end;
 
-    bytes4 internal constant INTERFACE_SIGNATURE_MinterPayableFixed =
-    bytes4(keccak256('mint()'))
-    ^ bytes4(keccak256('getMintPrince()'))
-    ^ bytes4(keccak256('getTotalCount()'))
-    ^ bytes4(keccak256('getSoldCount()'))
-    ^ bytes4(keccak256('getTicketInfos(uint256)'))
-    ^ bytes4(keccak256('getMinterInterfaceSignature()'))
-    ^ bytes4(keccak256('getMinterSignature()'));
-
-    function configure_minter(uint256 price, uint256 cap) internal {
+    function configure_minter(uint256 price, uint256 cap, uint256 _end, string memory _uri) internal {
         sell_price = price;
         ticket_cap = cap;
         tickets_sold = 0;
+        uri = _uri;
+        end = _end;
     }
 
     function mint() public payable {
@@ -44,7 +40,7 @@ contract MinterPayableFixed {
         T721V0(t721).mint(msg.sender);
     }
 
-    function getMintPrince() public view returns (uint256) {
+    function getMintPrice() public view returns (uint256) {
         return sell_price;
     }
 
@@ -56,16 +52,20 @@ contract MinterPayableFixed {
         return tickets_sold;
     }
 
-    function getTicketInfos(uint256) public pure returns (bytes32[] memory) {
+    function getTicketInfos(uint256) public view returns (bytes32[] memory) {
         return new bytes32[](0);
+    }
+
+    function getEventURI(uint256) public view returns (string memory _uri) {
+        return uri;
+    }
+
+    function getSaleEnd() public view returns (uint256 _end) {
+        return end;
     }
 
     function minter_set_T721(address _t721) internal {
         t721 = _t721;
-    }
-
-    function getMinterInterfaceSignature() public pure returns (bytes4) {
-        return INTERFACE_SIGNATURE_MinterPayableFixed;
     }
 
     function getMinterSignature() public pure returns (string memory) {
