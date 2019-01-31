@@ -4,9 +4,13 @@
     "version": "0.1.0",
     "contracts": {
         "AdministrationBoard": "AdministrationBoardV0",
-        "T721": "T721V0",
-        "Event_Mipafi_Madi_Apdi": "EventV0_Mipafi_Madi_Apdi",
+        "EventManagersRegistry": "EventManagersRegistryV0",
         "EventRegistry": "EventRegistryV0",
-        "EventManagersRegistry": "EventManagersRegistryV0"
+        "T721": "T721V0",
+
+        "Event_Mipafi_Madi_Apdi": "EventV0_Mipafi_Madi_Apdi",
+        "Event_Mipafi_Mate_Apdi": "EventV0_Mipafi_Mate_Apdi",
+        "Event_Mipafi_Mate_Apte": "EventV0_Mipafi_Mate_Apte",
+        "Event_Mipafi_Madi_Apte": "EventV0_Mipafi_Madi_Apte"
     }
 }

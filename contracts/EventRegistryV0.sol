@@ -70,7 +70,7 @@ contract EventRegistryV0 is Initializable {
     /// @notice Query to check if an address is a registered event
     /// @param _event Address of the event to check
     /// @return `true` if address is an event
-    function isRegistered(address _event) public _contract(_event) view returns (bool) {
+    function isRegistered(address _event) public view returns (bool) {
         return events[_event];
     }
 

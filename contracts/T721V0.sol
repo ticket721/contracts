@@ -14,6 +14,9 @@ pragma solidity 0.5.0;
 import "./erc/165/ERC165.sol";
 import "./erc/721/ERC721Basic.sol";
 import "./erc/721/ERC721Receiver.sol";
+import "./EventRegistryV0.sol";
+import "./ApproverInterface.sol";
+import "./MinterInterface.sol";
 import "zos-lib/contracts/Initializable.sol";
 import "./utility.sol";
 
@@ -26,8 +29,10 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     mapping (uint256 => address) internal                       issuer_by_ticket;
     mapping (uint256 => uint256) internal                       index_by_ticket;
     mapping (address => mapping (address => bool)) internal     approvals_for_all_by_user;
+    mapping (uint256 => uint256) internal                          sale_by_ticket;
     string internal                                             t721_name;
     string internal                                             t721_symbol;
+    address internal                                            event_registry;
 
     modifier zero(address _to) {
         require(_to != address(0), "0x0000000000000000000000000000000000000000 is not a valid owner");
@@ -49,6 +54,16 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         _;
     }
 
+    modifier eventOnly() {
+        require(EventRegistryV0(event_registry).isRegistered(msg.sender) == true, "Called Event is not registered in the EventRegistry");
+        _;
+    }
+
+    modifier issuer(uint256 _ticket_id) {
+        require(issuer_by_ticket[_ticket_id] == msg.sender, "Only ticket issuer is allowed to call this method");
+        _;
+    }
+
     //   /$$$$$$$$  /$$$$$$   /$$$$$$$
     //  |____ /$$/ /$$__  $$ /$$_____/
     //     /$$$$/ | $$  \ $$|  $$$$$$
@@ -56,10 +71,11 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     //   /$$$$$$$$|  $$$$$$/ /$$$$$$$/
     //  |________/ \______/ |_______/
 
-    function initialize(string memory _name, string memory _symbol) public initializer {
+    function initialize(address _event_registry, string memory _name, string memory _symbol) public initializer {
         ticket_id = 1;
         t721_name = _name;
         t721_symbol = _symbol;
+        event_registry = _event_registry;
     }
 
     //                                   /$$    /$$$$$$  /$$$$$$$
@@ -120,6 +136,11 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     //    |  $$$$//$$/    | $$$$$$$$ /$$$$$$
     //     \___/ |__/     |________/|______/
 
+    event Mint(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner);
+    event Sale(address indexed _issuer, uint256 indexed _ticket_id, uint256 _end);
+    event SaleClose(address indexed _issuer, uint256 indexed _ticket_id);
+    event Buy(address indexed _issuer, uint256 indexed _ticket_id, address indexed _new_owner);
+
     function mint(address _to) public
     zero(_to)
     returns (uint256)
@@ -130,7 +151,42 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         issuer_by_ticket[ticket_id] = msg.sender;
         index_by_ticket[ticket_id] = ticket_index;
 
+        emit Transfer(msg.sender, _to, ticket_id);
+        emit Mint(issuer_by_ticket[ticket_id], ticket_id, _to);
+
         ++ticket_id;
+    }
+
+    function openSale(uint256 _ticket_id, uint256 _end) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) {
+        require(isSaleOpen(_ticket_id) == false, "Sale already started");
+        require(_end > block.number, "Invalid end block");
+
+        sale_by_ticket[_ticket_id] = _end;
+
+        emit Sale(issuer_by_ticket[_ticket_id], _ticket_id, _end);
+    }
+
+    function closeSale(uint256 _ticket_id) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) {
+        require(isSaleOpen(_ticket_id) == true, "Ticket is not in sale");
+
+        delete sale_by_ticket[_ticket_id];
+
+        emit SaleClose(issuer_by_ticket[_ticket_id], _ticket_id);
+    }
+
+    function isSaleOpen(uint256 _ticket_id) public view returns (bool) {
+        return !(sale_by_ticket[_ticket_id] == 0 || block.number > sale_by_ticket[_ticket_id]);
+    }
+
+    function buy(uint256 _ticket_id, address _buyer) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) zero(_buyer) {
+        require(isSaleOpen(_ticket_id) == true, "Ticket is not in sale");
+        require(_buyer != owner_by_ticket[_ticket_id], "You cannot buy your own ticket");
+
+        approved_by_ticket[_ticket_id] = msg.sender;
+        delete sale_by_ticket[_ticket_id];
+        safeTransferFrom(owner_by_ticket[_ticket_id], _buyer, _ticket_id);
+
+        emit Buy(issuer_by_ticket[_ticket_id], _ticket_id, _buyer);
     }
 
     //                                 /$$$$$$$$ /$$$$$$    /$$   /$$                           /$$
@@ -261,6 +317,12 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
             (isApprovedForAll(_from, msg.sender) == true) // Ticket owner gave right to msg.sender to operate on all his tickets
             ), "You don't have the required rights");
 
+        require(isSaleOpen(_ticket_id) == false, "Ticket is currently in sale");
+
+        if (EventRegistryV0(event_registry).isRegistered(issuer_by_ticket[_ticket_id]) == true) {
+            require(Approver(issuer_by_ticket[_ticket_id]).allowed(_from, _to, _ticket_id) == true, "Event is not allowing this transfer");
+        }
+
         delete tickets_by_owner[_from][index_by_ticket[_ticket_id]];
 
         if (approved_by_ticket[_ticket_id] != address(0)) {
@@ -359,7 +421,6 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
 
     }
 
-
     //                                 /$$$$$$$$ /$$$$$$    /$$                             /$$
     //                                |_____ $$//$$__  $$ /$$$$                            | $$
     //    /$$$$$$   /$$$$$$   /$$$$$$$     /$$/|__/  \ $$|_  $$   /$$$$$$/$$$$   /$$$$$$  /$$$$$$    /$$$$$$
@@ -388,7 +449,10 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     ticket_exists(_ticket_id)
     returns (string memory)
     {
-        // TODO return from emitter
+        if (EventRegistryV0(event_registry).isRegistered(issuer_by_ticket[_ticket_id]) == true) {
+            return Minter(issuer_by_ticket[_ticket_id]).getEventURI(_ticket_id);
+        }
+        // TODO find something to return here
         return "";
     }
 

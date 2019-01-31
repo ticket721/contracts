@@ -1,4 +1,4 @@
-// !@! ApproverDisabled:Apdi:0.1.0:0.5.0:: !@!
+// !@! ApproverTester:Apte:0.1.0:0.5.0:: !@!
 //
 //    /$$    /$$$$$$$$ /$$$$$$    /$$
 //   | $$   |_____ $$//$$__  $$ /$$$$
@@ -14,14 +14,14 @@ pragma solidity 0.5.0;
 
 import "../ApproverInterface.sol";
 
-contract ApproverDisabled is Approver {
+contract ApproverTester is Approver {
 
     function allowed(address, address, uint256) public view returns (bool) {
-        return true;
+        return false;
     }
 
     function getApproverSignature() public view returns (string memory) {
-        return "ApproverDisabled:0.1.0:0.5.0";
+        return "ApproverTester:0.1.0:0.5.0";
     }
 
     function approver_set_T721(address) internal pure {}

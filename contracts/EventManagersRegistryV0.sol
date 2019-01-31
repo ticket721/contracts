@@ -21,9 +21,9 @@ contract EventManagersRegistryV0 is Initializable {
     address[] private member_list;
     uint256 private member_count;
 
-    event Manager(address _manager, address _adder);
-    event RemovedManager(address _manager, address _remover);
-    event LeftManager(address _manager);
+    event Manager(address indexed _manager, address indexed _adder);
+    event RemovedManager(address indexed _manager, address indexed _remover);
+    event LeftManager(address indexed _manager);
 
     /// @notice ZeppelinOs Initializer. Used as an asynchronous constructor for the proxy.
     /// @param _board Address of the system's administration board
