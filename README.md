@@ -8,6 +8,12 @@ Ethereum Smart Contracts for ticket721
 | Travis | [![Build Status](https://travis-ci.org/ticket721/contracts.svg?branch=develop)](https://travis-ci.org/ticket721/contracts) |
 | Codecov | [![codecov](https://codecov.io/gh/ticket721/contracts/branch/develop/graph/badge.svg)](https://codecov.io/gh/ticket721/contracts) |
 
+## Env
+
+| Variable | Mandatory | Values | Description |
+| :--: | :--: | :--: | :--: | :--: |
+| `T721_NETWORK` | yes | `test`, `local` | This value will tell every task how it should behave / configure the tools |
+
 ## Tasks
 
 | Name | Description |
