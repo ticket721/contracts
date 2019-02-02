@@ -1,8 +1,8 @@
 {
-    "name": "@horyus/t721-contracts",
+    "name": "@ticket721/contracts",
     "private": true,
     "version": "1.0.0",
-    "description": "t721-contracts - Ethereum Smart Contracts for ticket721",
+    "description": "contracts - Ethereum Smart Contracts for ticket721",
     "main": "index.js",
     "scripts": {
         "test:editorconfig": "editorconfig-cli",
@@ -13,14 +13,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/mortimr/t721-contracts.git"
+        "url": "git+https://github.com/ticket721/contracts.git"
     },
     "author": "Iulian Rotaru",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/mortimr/t721-contracts/issues"
+        "url": "https://github.com/ticket721/contracts/issues"
     },
-    "homepage": "https://github.com/mortimr/t721-contracts#readme",
+    "homepage": "https://github.com/ticket721/contracts#readme",
     "dependencies": {
         "@htmlacademy/editorconfig-cli": "^1.0.0",
         "bignumber.js": "^8.0.2",
