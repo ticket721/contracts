@@ -1,9 +1,9 @@
 const signale = require('signale');
 const {Portalize} = require('portalize');
 const fs = require('fs');
-const path = require('path');
 const rimraf = require('rimraf');
 const glob = require('glob');
+const { from_current } = require('../misc');
 
 const apply_config = async () => {
     const config = Portalize.get.get('network.json', {module: 'network'});
@@ -20,40 +20,45 @@ const apply_config = async () => {
 
     const end_config = `module.exports = ${JSON.stringify(truffle_config, null, 4)}`;
 
-    fs.writeFileSync('./truffle-config.js', end_config);
+    fs.writeFileSync(from_current('./truffle-config.js'), end_config);
 };
 
 const clean_build = async () => {
-    if (fs.existsSync('./build')) {
+    if (fs.existsSync(from_current('./build'))) {
         signale.info('truffle: remove build dir');
-        rimraf.sync('./build');
+        rimraf.sync(from_current('./build'));
     }
 };
 
 const clean_config = async () => {
-    if (fs.existsSync('./truffle-config.js')) {
+    if (fs.existsSync(from_current('./truffle-config.js'))) {
         signale.info('truffle: remove config');
-        fs.unlinkSync('./truffle-config.js');
+        fs.unlinkSync(from_current('./truffle-config.js'));
     }
 };
 
 const clean_events = async () => {
-    if (fs.existsSync('./contracts/events')) {
+    if (fs.existsSync(from_current('./contracts/events'))) {
         signale.info('truffle: remove events');
-        rimraf.sync('./contracts/events');
+        rimraf.sync(from_current('./contracts/events'));
     }
 };
 
 const clean_zos_output = async () => {
-    const matchings = glob.sync('zos.*.json');
+    const matchings = glob.sync(from_current('') + '/zos.*.json');
+
     for (const match of matchings) {
-        fs.unlinkSync(path.join(path.resolve('.'), match));
+        fs.unlinkSync(match);
+    }
+
+    if (fs.existsSync(from_current('.zos.session'))) {
+        fs.unlinkSync(from_current('.zos.session'));
     }
 };
 
 const clean_portal = async () => {
     signale.info(`portalize: clean contracts !`);
-    Portalize.get.setPortal('./portal');
+    Portalize.get.setPortal(from_current('./portal'));
     Portalize.get.setModuleName('contracts');
     Portalize.get.clean();
 };

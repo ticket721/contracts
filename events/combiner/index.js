@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const signale = require('signale');
+const {from_current} = require('../../tasks/misc');
 
 let arg_idx = 1;
 
@@ -21,7 +22,7 @@ const process_args = (args) => {
 };
 
 const load_dir = (dir_path) => {
-    const complete_dir_path = path.join(path.resolve('./contracts'), dir_path);
+    const complete_dir_path = path.join(from_current('./contracts'), dir_path);
     const files = fs.readdirSync(complete_dir_path);
     const ret = [];
     for (const file of files) {
@@ -106,7 +107,7 @@ const load_marketers = () => {
 };
 
 const load_event = () => {
-    event = fs.readFileSync('./events/EventV0.sol').toString();
+    event = fs.readFileSync(from_current('./events/EventV0.sol')).toString();
 };
 
 const check_plugs = (t721_ver, solidity_ver) => {
@@ -243,7 +244,7 @@ const write_combinations = (t721_ver, solidity_ver) => {
             .replace('/*$${{SOLC_VERSION}}$$*/', solidity_ver)
             .replace('/*$${{T721_VERSION}}$$*/', t721_ver);
 
-        fs.writeFileSync(`./contracts/events/EventV0${build_args.name}.sol`, source);
+        fs.writeFileSync(from_current(`./contracts/events/EventV0${build_args.name}.sol`), source);
 
         signale.info(`Generated ./contracts/events/EventV0${build_args.name}.sol`);
 
@@ -251,8 +252,8 @@ const write_combinations = (t721_ver, solidity_ver) => {
 };
 
 module.exports = async (t721_ver, solidity_ver) => {
-    if (!fs.existsSync('./contracts/events')) {
-        fs.mkdirSync('./contracts/events');
+    if (!fs.existsSync(from_current('./contracts/events'))) {
+        fs.mkdirSync(from_current('./contracts/events'));
     }
 
     load_minters();

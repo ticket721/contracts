@@ -1,3 +1,5 @@
+const { from_current } = require('../misc');
+
 const fs = require('fs');
 
 const apply_config = async () => {
@@ -5,7 +7,7 @@ const apply_config = async () => {
 
     const end_config = `module.exports = ${JSON.stringify(truffle_config, null, 4)}`;
 
-    fs.writeFileSync('./truffle-config.js', end_config);
+    fs.writeFileSync(from_current('./truffle-config.js'), end_config);
 };
 
 exports.test_configure = apply_config;
