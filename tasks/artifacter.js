@@ -1,12 +1,14 @@
+const { from_current } = require('./misc');
+
 const fs = require('fs');
 const path = require('path');
 const {Portalize} = require('portalize');
 
 const artifacter = async () => {
-    const contracts_dir = path.join(path.resolve('.'), 'build/contracts');
+    const contracts_dir = from_current('build/contracts');
     const artifacts = fs.readdirSync(contracts_dir);
 
-    Portalize.get.setPortal('./portal');
+    Portalize.get.setPortal(from_current('./portal'));
     Portalize.get.setModuleName('contracts');
 
     const config = Portalize.get.get('network.json', {module: 'network'});

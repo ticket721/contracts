@@ -1,9 +1,11 @@
+const { from_current } = require('../misc');
+
 const {Portalize} = require('portalize');
 
 const portal_requirements = async () => {
     if (process.env.T721_NETWORK === 'test') return ;
 
-    Portalize.get.setPortal('./portal');
+    Portalize.get.setPortal(from_current('./portal'));
     Portalize.get.setModuleName('contracts');
 
     if (!Portalize.get.requires({

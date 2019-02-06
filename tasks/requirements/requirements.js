@@ -1,3 +1,5 @@
+const { from_current } = require('../misc');
+
 const fs = require('fs');
 
 const requirements = async () => {
@@ -7,7 +9,7 @@ const requirements = async () => {
     }
 
     // Check if portal is deployed
-    if (process.env.T721_NETWORK !== 'test' && !fs.existsSync('./portal')) {
+    if (process.env.T721_NETWORK !== 'test' && !fs.existsSync(from_current('./portal'))) {
         throw new Error('Cannot find portal, directory has not been initialized');
     }
 
