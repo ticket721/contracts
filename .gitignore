@@ -4,6 +4,7 @@ portal
 build
 truffle-config.js
 .DS_Store
+/contracts/events/
 
 .zos.session
 zos.*.json
