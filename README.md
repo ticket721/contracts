@@ -6,7 +6,7 @@ Ethereum Smart Contracts for ticket721
 | Name | Shield |
 | :---: | :----: |
 | Travis | [![Build Status](https://travis-ci.org/ticket721/contracts.svg?branch=develop)](https://travis-ci.org/ticket721/contracts) |
-| Codecov | [![codecov](https://codecov.io/gh/ticket721/contracts/branch/develop/graph/badge.svg)](https://codecov.io/gh/ticket721/contracts) |
+| Coveralls | [![Coverage Status](https://coveralls.io/repos/github/ticket721/contracts/badge.svg?branch=develop)](https://coveralls.io/github/ticket721/contracts?branch=develop) |
 
 ## Env
 
