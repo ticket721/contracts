@@ -71,4 +71,5 @@ contract MinterPayableFixed is Minter {
     function getMinterSignature() public pure returns (string memory) {
         return "MinterPayableFixed:0.1.0:0.5.0";
     }
+
 }

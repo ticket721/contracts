@@ -29,13 +29,13 @@ contract MarketerTester is Marketer {
 
     function sell(uint256 _ticket_id, uint256 _price, uint256 _end) public {
         require(T721V0(t721).ownerOf(_ticket_id) == msg.sender, "You are not the owner of the ticket");
-        T721V0(t721).openSale(1, _end);
+        T721V0(t721).openSale(_ticket_id, _end);
         price[_ticket_id] = _price;
     }
 
     function test_closeSale(uint256 _ticket_id) public {
         require(T721V0(t721).ownerOf(_ticket_id) == msg.sender, "You are not the owner of the ticket");
-        T721V0(t721).closeSale(1);
+        T721V0(t721).closeSale(_ticket_id);
     }
 
     function getSellPrice(uint256 _ticket_id) public view returns (uint256) {

@@ -189,6 +189,14 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         emit Buy(issuer_by_ticket[_ticket_id], _ticket_id, _buyer);
     }
 
+    function getIssuer(uint256 _ticket_id) public view returns (address) {
+        return issuer_by_ticket[_ticket_id];
+    }
+
+    function getSaleEnd(uint256 _ticket_id) public view returns (uint256) {
+        return sale_by_ticket[_ticket_id];
+    }
+
     //                                 /$$$$$$$$ /$$$$$$    /$$   /$$                           /$$
     //                                |_____ $$//$$__  $$ /$$$$  | $$                          |__/
     //    /$$$$$$   /$$$$$$   /$$$$$$$     /$$/|__/  \ $$|_  $$  | $$$$$$$   /$$$$$$   /$$$$$$$ /$$  /$$$$$$$

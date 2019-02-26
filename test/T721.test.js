@@ -857,10 +857,11 @@ contract('T721', () => {
 
     });
 
-    describe('[mint]', () => {
+    describe('[mint] [getIssuer]', () => {
 
         it(`[event.mint Z value 1000]`, async () => {
 
+            const T721 = await instance(contract_name);
             const event = events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled];
 
             const res = await event.mint({value: 1000});
@@ -875,6 +876,8 @@ contract('T721', () => {
             expect(event_solidity.topics[2]).to.equal(token_id);
             expect(event_solidity.topics[3]).to.equal(owner);
 
+            const issuer = await T721.getIssuer(1);
+            expect(issuer).to.equal(event.address);
         });
 
         it(`[event.mint Z value 999] [revert]`, async () => {
@@ -907,6 +910,9 @@ contract('T721', () => {
 
             await expect(T721.isSaleOpen(1)).to.eventually.be.true;
             expect((await event.getSellPrice(1)).toNumber()).to.equal(2000);
+
+            const end = await T721.getSaleEnd(1);
+            expect(end.toNumber()).to.equal(1000);
 
         });
 
