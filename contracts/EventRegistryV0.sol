@@ -24,9 +24,9 @@ contract EventRegistryV0 is Initializable {
     mapping (address => bool) private events;
     mapping (address => dtypes.Votes) private kick_votes;
 
-    event Event(address _adder, address _event);
-    event KickedEvent(address _event);
-    event KickFailed(address _event);
+    event Event(address indexed _adder, address indexed _event);
+    event KickedEvent(address indexed _event);
+    event KickFailed(address indexed _event);
 
     /// @notice ZeppelinOs Initializer. Used as an asynchronous constructor for the proxy.
     /// @param _admin_board Address of the system's administration board

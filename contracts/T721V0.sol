@@ -137,9 +137,9 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     //     \___/ |__/     |________/|______/
 
     event Mint(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner);
-    event Sale(address indexed _issuer, uint256 indexed _ticket_id, uint256 _end);
-    event SaleClose(address indexed _issuer, uint256 indexed _ticket_id);
-    event Buy(address indexed _issuer, uint256 indexed _ticket_id, address indexed _new_owner);
+    event Sale(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner, uint256 _end);
+    event SaleClose(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner);
+    event Buy(address indexed _issuer, uint256 indexed _ticket_id, address indexed _new_owner, address _old_owner);
 
     function mint(address _to) public
     zero(_to)
@@ -151,8 +151,8 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         issuer_by_ticket[ticket_id] = msg.sender;
         index_by_ticket[ticket_id] = ticket_index;
 
-        emit Transfer(msg.sender, _to, ticket_id);
         emit Mint(issuer_by_ticket[ticket_id], ticket_id, _to);
+        emit Transfer(msg.sender, _to, ticket_id);
 
         ++ticket_id;
     }
@@ -163,7 +163,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
 
         sale_by_ticket[_ticket_id] = _end;
 
-        emit Sale(issuer_by_ticket[_ticket_id], _ticket_id, _end);
+        emit Sale(issuer_by_ticket[_ticket_id], _ticket_id, owner_by_ticket[_ticket_id], _end);
     }
 
     function closeSale(uint256 _ticket_id) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) {
@@ -171,7 +171,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
 
         delete sale_by_ticket[_ticket_id];
 
-        emit SaleClose(issuer_by_ticket[_ticket_id], _ticket_id);
+        emit SaleClose(issuer_by_ticket[_ticket_id], _ticket_id, owner_by_ticket[_ticket_id]);
     }
 
     function isSaleOpen(uint256 _ticket_id) public view returns (bool) {
@@ -182,11 +182,12 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         require(isSaleOpen(_ticket_id) == true, "Ticket is not in sale");
         require(_buyer != owner_by_ticket[_ticket_id], "You cannot buy your own ticket");
 
+        emit Buy(issuer_by_ticket[_ticket_id], _ticket_id, _buyer, owner_by_ticket[_ticket_id]);
+
         approved_by_ticket[_ticket_id] = msg.sender;
         delete sale_by_ticket[_ticket_id];
         safeTransferFrom(owner_by_ticket[_ticket_id], _buyer, _ticket_id);
 
-        emit Buy(issuer_by_ticket[_ticket_id], _ticket_id, _buyer);
     }
 
     function getIssuer(uint256 _ticket_id) public view returns (address) {
