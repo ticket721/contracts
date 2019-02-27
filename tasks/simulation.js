@@ -363,6 +363,7 @@ module.exports.simulation = async function simulation(debug) {
     }
 
     report.owners = _ticket_ownership;
+    report.sell_list = sell_list;
 
     try {
         const report = Portalize.get.get('report.json');

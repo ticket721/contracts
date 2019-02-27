@@ -23,6 +23,7 @@ Ethereum Smart Contracts for ticket721
 | `contracts:push` | Push logics to the network with `zos` |
 | `contracts:deploy` | Push and Deploys contracts to the network with `zos` |
 | `contracts:clean` | Remove all generated configurations, build directory, clean module's portal |
+| `contracts:simulation` | Deploys events, create tickets and makes actions to populate development node |
 
 ## Manually Deploying
 
@@ -53,6 +54,13 @@ env T721_NETWORK=local gulp contracts:deploy
 ```
 
 After deployment, artifacts will be save in the portal at `contracts/`.
+
+### Run simulation
+
+You can run the simulation on the configured node to create events, tickets and make actions with the default accounts.
+```shell
+gulp contracts:simulation --accounts number_of_accounts_to_use --events number_of_events_to_create --tickets number_of_ticket_per_event_to_create --actions number_of_actions_to_run
+```
 
 ## Tests
 
