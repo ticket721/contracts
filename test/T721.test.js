@@ -865,7 +865,7 @@ contract('T721', () => {
             const event = events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled];
 
             const res = await event.mint({value: 1000});
-            const event_solidity = res.receipt.rawLogs[1];
+            const event_solidity = res.receipt.rawLogs[0];
             const event_signature = web3.utils.keccak256('Mint(address,uint256,address)').toLowerCase();
             const issuer_address = `0x000000000000000000000000${event.address.slice(2)}`.toLowerCase();
             const token_id = '0x0000000000000000000000000000000000000000000000000000000000000001';
@@ -900,7 +900,7 @@ contract('T721', () => {
             await event.mint({value: 1000});
             const res = await event.sell(1, 2000, 1000);
             const event_solidity = res.receipt.rawLogs[0];
-            const event_signature = web3.utils.keccak256('Sale(address,uint256,uint256)').toLowerCase();
+            const event_signature = web3.utils.keccak256('Sale(address,uint256,address,uint256)').toLowerCase();
             const issuer_address = `0x000000000000000000000000${event.address.slice(2)}`.toLowerCase();
             const token_id = '0x0000000000000000000000000000000000000000000000000000000000000001';
 
@@ -937,7 +937,7 @@ contract('T721', () => {
 
             const res = await event.test_closeSale(1);
             const event_solidity = res.receipt.rawLogs[0];
-            const event_signature = web3.utils.keccak256('SaleClose(address,uint256)').toLowerCase();
+            const event_signature = web3.utils.keccak256('SaleClose(address,uint256,address)').toLowerCase();
             const issuer_address = `0x000000000000000000000000${event.address.slice(2)}`.toLowerCase();
             const token_id = '0x0000000000000000000000000000000000000000000000000000000000000001';
 
@@ -1001,8 +1001,8 @@ contract('T721', () => {
             await event.mint({value: 1000});
             await event.sell(1, 2000, 1000);
             const res = await event.buy(1, {from: accounts[1], value: 2000});
-            const event_solidity = res.receipt.rawLogs[1];
-            const event_signature = web3.utils.keccak256('Buy(address,uint256,address)').toLowerCase();
+            const event_solidity = res.receipt.rawLogs[0];
+            const event_signature = web3.utils.keccak256('Buy(address,uint256,address,address)').toLowerCase();
             const issuer_address = `0x000000000000000000000000${event.address.slice(2)}`.toLowerCase();
             const token_id = '0x0000000000000000000000000000000000000000000000000000000000000001';
             const new_owner = `0x000000000000000000000000${accounts[1].slice(2)}`.toLowerCase();
