@@ -13,6 +13,7 @@ pragma solidity 0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "./AdministrationBoardV0.sol";
+import "./utility.sol";
 
 contract EventManagersRegistryV0 is Initializable {
 
@@ -31,6 +32,11 @@ contract EventManagersRegistryV0 is Initializable {
         board = _board;
         member_list.push(address(0));
         member_count = 0;
+    }
+
+    modifier user(address _address) {
+        require(utility.isContract(_address) == false, "Given address is a contract");
+        _;
     }
 
     modifier boardOnly() {
@@ -87,7 +93,7 @@ contract EventManagersRegistryV0 is Initializable {
     /// @notice Method to add a new manager
     /// @dev Only board members are allowed to call this method
     /// @param _new_manager The address of the new manager
-    function addManager(address _new_manager) public zero(_new_manager) boardOnly {
+    function addManager(address _new_manager) public zero(_new_manager) user(_new_manager) boardOnly {
         require(members[_new_manager] == 0, "Recipient is already an event manager");
         members[_new_manager] = member_list.push(_new_manager) - 1;
         ++member_count;

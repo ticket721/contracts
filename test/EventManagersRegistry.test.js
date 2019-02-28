@@ -114,6 +114,14 @@ contract('EventManagersRegistry', () => {
 
         });
 
+        it('[addManager T721 from Z] [revert]', async () => {
+
+            const EMR = await instance(emr_contract_name);
+
+            return expect(EMR.addManager(EMR.address, {from: accounts[0]})).to.eventually.be.rejected;
+
+        });
+
         it('[addManager Z from Five] [revert]', async () => {
 
             const EMR = await instance(emr_contract_name);
