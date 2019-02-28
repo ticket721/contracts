@@ -15,16 +15,14 @@
 
 pragma solidity /*$${{SOLC_VERSION}}$$*/;
 
-import "zos-lib/contracts/Initializable.sol";
-
 /*$${{IMPORTS}}$$*/
 
-contract EventV0/*$${{NAME}}$$*/ is Initializable/*$${{INHERITANCE}}$$*/ {
+contract Event/*$${{NAME}}$$*/ is /*$${{INHERITANCE}}$$*/ {
 
     address private t721;
     string private _uri;
 
-    function initialize(address _t721/*$${INITIALIZER_ARGS}$$*/) public initializer {
+    constructor(address _t721/*$${INITIALIZER_ARGS}$$*/) public {
         t721 = _t721;
         minter_set_T721(_t721);
         marketer_set_T721(_t721);

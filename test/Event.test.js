@@ -37,7 +37,7 @@ const createEvent = async (event_name) => {
 };
 
 const event_names = {
-    MinterPayableFixed_MarketerDisabled_ApproverDisabled: 'EventV0_Mipafi_Madi_Apdi'
+    MinterPayableFixed_MarketerDisabled_ApproverDisabled: 'Event_Mipafi_Madi_Apdi'
 };
 
 const create = async () => {

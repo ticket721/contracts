@@ -107,7 +107,7 @@ const load_marketers = () => {
 };
 
 const load_event = () => {
-    event = fs.readFileSync(from_current('./events/EventV0.sol')).toString();
+    event = fs.readFileSync(from_current('./events/Event.sol')).toString();
 };
 
 const check_plugs = (t721_ver, solidity_ver) => {
@@ -220,7 +220,7 @@ const get_build_args = (minter, marketer, approver) => {
         minter_call: `${INDENT}configure_minter(${configure_args.minter_call});`,
         marketer_call: `${INDENT}configure_marketer(${configure_args.marketer_call});`,
         approver_call: `${INDENT}configure_approver(${configure_args.approver_call});`,
-        inheritance: `, ${minter.name}, ${marketer.name}, ${approver.name}`,
+        inheritance: `${minter.name}, ${marketer.name}, ${approver.name}`,
         name: `_${minter.symbol}_${marketer.symbol}_${approver.symbol}`,
         desc: `${GENERIC}${minter.raw}\n${marketer.raw}\n${approver.raw}`,
         imports: `import "${minter.path}";\nimport "${marketer.path}";\nimport "${approver.path}";`
@@ -244,9 +244,9 @@ const write_combinations = (t721_ver, solidity_ver) => {
             .replace('/*$${{SOLC_VERSION}}$$*/', solidity_ver)
             .replace('/*$${{T721_VERSION}}$$*/', t721_ver);
 
-        fs.writeFileSync(from_current(`./contracts/events/EventV0${build_args.name}.sol`), source);
+        fs.writeFileSync(from_current(`./contracts/events/Event${build_args.name}.sol`), source);
 
-        signale.info(`Generated ./contracts/events/EventV0${build_args.name}.sol`);
+        signale.info(`Generated ./contracts/events/Event${build_args.name}.sol`);
 
     }
 };

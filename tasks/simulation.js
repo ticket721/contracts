@@ -5,19 +5,17 @@ const {argv} = require('yargs');
 const {exec} = require('child_process');
 const signale = require('signale');
 
-const createEvent = async (t721, price, cap, end, uri, net_name) => {
-    signale.info('Deploying Event');
-    return new Promise((ok, ko) => {
-        exec(`${from_current('./node_modules')}/.bin/zos create Event_Mipafi_Mate_Apdi --init initialize --args ${t721},${price},${cap},${end},${uri} --network ${net_name}`, (err, stdout, stderr) => {
-            if (err) {
-                console.error(stderr);
-                return ko(err);
-            }
-            stdout = stdout.replace('\n', '');
-            signale.success(`Deployed Event ${stdout}`);
-            ok(stdout);
-        })
-    })
+const createEvent = async (t721, price, cap, end, uri, arti, bin, from) => {
+    signale.info(`Creating Event instance ...`);
+    const instance = await arti.deploy({
+        arguments: [t721, price, cap, end, uri],
+        data: bin
+    }).send({
+        from,
+        gas: 0xffffff
+    });
+    signale.success(`Created Event instance`);
+    return instance.options.address;
 };
 
 const report = {};
@@ -61,7 +59,7 @@ module.exports.simulation = async function simulation(debug) {
     const EventManagersRegistryArtifact = Portalize.get.get('EventManagersRegistryV0.artifact.json');
     const EventRegistryArtifact = Portalize.get.get('EventRegistryV0.artifact.json');
     const T721Artifact = Portalize.get.get('T721V0.artifact.json');
-    const EventArtifact = Portalize.get.get('EventV0_Mipafi_Mate_Apdi.artifact.json');
+    const EventArtifact = Portalize.get.get('Event_Mipafi_Mate_Apdi.artifact.json');
 
     const AdministrationBoard = new web3.eth.Contract(AdministrationBoardArtifact.abi, AdministrationBoardArtifact.networks[network_infos.network_id].address, {
         gas: 0xfffff
@@ -75,6 +73,7 @@ module.exports.simulation = async function simulation(debug) {
     const T721 = new web3.eth.Contract(T721Artifact.abi, T721Artifact.networks[network_infos.network_id].address, {
         gas: 0xfffff
     });
+    const Event = new web3.eth.Contract(EventArtifact.abi);
 
     const _events = [];
 
@@ -111,7 +110,7 @@ module.exports.simulation = async function simulation(debug) {
     report.events = [];
     report.event_type = 'EventV0_Mipafi_Mate_Apdi';
     for (let idx = 0; idx < events; ++idx) {
-        const address = await createEvent(T721.options.address, 10, 100000, 100000, 'lel', network_infos.type);
+        const address = await createEvent(T721.options.address, 10, 100000, 100000, 'lel', Event, EventArtifact.bin, manager);
         report.events.push(address);
         _events.push(new web3.eth.Contract(EventArtifact.abi, address, {gas: 0xffffffffff}));
         await EventRegistry.methods.registerEvent(address).send({from: manager});

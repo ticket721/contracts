@@ -9,6 +9,7 @@ chai.use(chaiProm);
 
 const expect = chai.expect;
 
+const t721_contract_name = 'T721V0';
 const ab_contract_name = 'AdministrationBoardV0';
 const er_contract_name = 'EventRegistryV0';
 const emr_contract_name = 'EventManagersRegistryV0';
@@ -61,6 +62,23 @@ const createEventRegistry = async () => {
             ok();
         })
     })
+};
+
+const createT721 = async () => {
+
+    signale.info('Creating T721 proxy ...');
+    const ER = await instance(er_contract_name);
+    return new Promise((ok, ko) => {
+        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args ${ER.address},Test,TST --network ${NET.name}`, (err, stdout, stderr) => {
+            if (err) {
+                console.error(stderr);
+                return ko(err);
+            }
+            signale.success('Created T721 proxy');
+            ok();
+        })
+    })
+
 };
 
 const addMembers = async () => {
@@ -119,23 +137,29 @@ const addManagers = async () => {
 
 let events = {};
 
-const createEvent = async (event_name) => {
+const createEvent = async (event_name, address, args) => {
     signale.info(`Creating ${event_name} instance ...`);
     const arti = await artifacts.require(event_name);
-    events[event_name] = await arti.new();
+    events[event_name] = await arti.new(address, ...args);
     signale.success(`Created ${event_name} instance`);
 };
 
 const event_names = {
-    MinterPayableFixed_MarketerDisabled_ApproverDisabled: 'EventV0_Mipafi_Madi_Apdi'
+    MinterPayableFixed_MarketerDisabled_ApproverDisabled: 'Event_Mipafi_Madi_Apdi'
+};
+
+const event_args = {
+    'Event_Mipafi_Madi_Apdi': [1000, 1000, 1000, 'uri']
 };
 
 const create = async () => {
     await createAdministrationBoard();
     await createEventManagersRegistry();
     await createEventRegistry();
+    await createT721();
+    const t721_address = (await instance(t721_contract_name)).address;
     for (const event of Object.values(event_names)) {
-        await createEvent(event);
+        await createEvent(event, t721_address, event_args[event]);
     }
     await addMembers();
     await addManagers();
