@@ -22,6 +22,7 @@ contract EventRegistryV0 is Initializable {
     address private admin_board;
     address private manager_registry;
     mapping (address => bool) private events;
+    mapping (address => address) private owner;
     mapping (address => dtypes.Votes) private kick_votes;
 
     event Event(address indexed _adder, address indexed _event);
@@ -52,19 +53,21 @@ contract EventRegistryV0 is Initializable {
         _;
     }
 
-    modifier manager() {
-        require(EventManagersRegistryV0(manager_registry).isManager(msg.sender), "This action is reserved to managers only");
-        _;
-    }
-
     /// @notice Registers an address as an event
     /// @dev Only managers are allowed to call this method
     /// @dev `revert` if address is not a contract
     /// @param _event Address of the event to add
-    function registerEvent(address _event) public manager _contract(_event) {
-        // TODO Efficiently verify that correct contract is calling
+    function registerEvent(address _event) public _contract(_event) {
         events[_event] = true;
+        owner[_event] = msg.sender;
         emit Event(msg.sender, _event);
+    }
+
+    /// @notice Checks if an event is valid
+    /// @dev Checks if the owner of an event is a registered event manager
+    /// @param _event Address of the event to check
+    function isValid(address _event) public view _events(_event) returns (bool) {
+        return EventManagersRegistryV0(manager_registry).isManager(owner[_event]);
     }
 
     /// @notice Query to check if an address is a registered event

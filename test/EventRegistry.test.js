@@ -191,8 +191,10 @@ contract('EventRegistry', () => {
         it('[registerEvent event from Five] [revert]', async () => {
             const ER = await instance(er_contract_name);
 
-            return expect(ER.registerEvent(events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled].address,
-                {from: accounts[5]})).to.eventually.be.rejected;
+            await ER.registerEvent(events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled].address,
+                {from: accounts[5]});
+            await expect(ER.isRegistered(events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled].address)).to.eventually.be.true;
+            return expect(ER.isValid(events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled].address)).to.eventually.be.false;
         });
 
         it('[registerEvent Five from Z] [revert]', async () => {
@@ -224,7 +226,8 @@ contract('EventRegistry', () => {
                 }
             }, 'The event is emitted');
 
-            return expect(ER.isRegistered(events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled].address)).to.eventually.be.true;
+            await expect(ER.isRegistered(events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled].address)).to.eventually.be.true;
+            return expect(ER.isValid(events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled].address)).to.eventually.be.true;
         });
 
     });
