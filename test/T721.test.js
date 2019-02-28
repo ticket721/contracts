@@ -172,41 +172,27 @@ const addManagers = async () => {
 
 const event_names = {
 
-    MinterPayableFixed_MarketerDisabled_ApproverDisabled: 'EventV0_Mipafi_Madi_Apdi',
-    MinterPayableFixed_MarketerTester_ApproverTester: 'EventV0_Mipafi_Mate_Apte',
-    MinterPayableFixed_MarketerTester_ApproverDisabled: 'EventV0_Mipafi_Mate_Apdi'
+    MinterPayableFixed_MarketerDisabled_ApproverDisabled: 'Event_Mipafi_Madi_Apdi',
+    MinterPayableFixed_MarketerTester_ApproverTester: 'Event_Mipafi_Mate_Apte',
+    MinterPayableFixed_MarketerTester_ApproverDisabled: 'Event_Mipafi_Mate_Apdi'
 
 };
 
 const event_initializers = {
 
-    'EventV0_Mipafi_Madi_Apdi': [1000, 1000, 1000, `test1`],
-    'EventV0_Mipafi_Mate_Apte': [1000, 1000, 1000, `test2`],
-    'EventV0_Mipafi_Mate_Apdi': [1000, 1000, 1000, `test3`]
+    'Event_Mipafi_Madi_Apdi': [1000, 1000, 1000, `test1`],
+    'Event_Mipafi_Mate_Apte': [1000, 1000, 1000, `test2`],
+    'Event_Mipafi_Mate_Apdi': [1000, 1000, 1000, `test3`]
 
 };
 
 let events = {};
 
-const createEvent = async (event_name) => {
-
-    return new Promise(async (ok, ko) => {
-        signale.info(`Creating ${event_name} proxy ...`);
-        const t721 = await instance(contract_name);
-        const execstr = (event_initializers[event_name] && event_initializers[event_name].length)
-            ? `${node_modules_path()}/.bin/zos create Event_${event_name.slice(event_name.indexOf('EventV0_') + 8)} --init initialize --args ${t721.address},${event_initializers[event_name]} --network ${NET.name}`
-            : `${node_modules_path()}/.bin/zos create Event_${event_name.slice(event_name.indexOf('EventV0_') + 8)} --init initialize --args ${t721.address} --network ${NET.name}`;
-        exec(execstr, async (err, stdout, stderr) => {
-            if (err) {
-                console.error(stderr);
-                return ko(err);
-            }
-            events[event_name] = await instance(event_name);
-            signale.success(`Created ${event_name} proxy`);
-            ok();
-        });
-    });
-
+const createEvent = async (event_name, address, args) => {
+    signale.info(`Creating ${event_name} instance ...`);
+    const arti = await artifacts.require(event_name);
+    events[event_name] = await arti.new(address, ...args);
+    signale.success(`Created ${event_name} instance`);
 };
 
 const registerEvent = async (event_name) => {
@@ -232,8 +218,9 @@ const create = async () => {
     await createBadTestERC721Receiver();
     await addMembers();
     await addManagers();
+    const t721_address = (await instance(contract_name)).address;
     for (const event of Object.values(event_names)) {
-        await createEvent(event);
+        await createEvent(event, t721_address, event_initializers[event]);
         await registerEvent(event);
     }
 
