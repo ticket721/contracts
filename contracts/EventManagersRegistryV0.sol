@@ -22,9 +22,8 @@ contract EventManagersRegistryV0 is Initializable {
     address[] private member_list;
     uint256 private member_count;
 
-    event Manager(address indexed _manager, address indexed _adder);
-    event RemovedManager(address indexed _manager, address indexed _remover);
-    event LeftManager(address indexed _manager);
+    event NewManager(address indexed _manager, address indexed _adder);
+    event DeleteManager(address indexed _manager, address indexed _remover);
 
     /// @notice ZeppelinOs Initializer. Used as an asynchronous constructor for the proxy.
     /// @param _board Address of the system's administration board
@@ -98,7 +97,7 @@ contract EventManagersRegistryV0 is Initializable {
         members[_new_manager] = member_list.push(_new_manager) - 1;
         ++member_count;
 
-        emit Manager(_new_manager, msg.sender);
+        emit NewManager(_new_manager, msg.sender);
     }
 
     /// @notice Method to remove a manager
@@ -112,7 +111,7 @@ contract EventManagersRegistryV0 is Initializable {
         delete members[_manager];
         --member_count;
 
-        emit RemovedManager(_manager, msg.sender);
+        emit DeleteManager(_manager, msg.sender);
     }
 
     /// @notice Method to leave the registry
@@ -121,7 +120,7 @@ contract EventManagersRegistryV0 is Initializable {
         delete members[msg.sender];
         --member_count;
 
-        emit LeftManager(msg.sender);
+        emit DeleteManager(msg.sender, msg.sender);
     }
 
 }

@@ -16,15 +16,13 @@ import "./dtypes.sol";
 
 contract AdministrationBoardV0 is Initializable {
 
-    event AdditionVote(address indexed _new_member);
-    event NewMember(address indexed _new_member);
-    event AdditionRefused(address indexed _new_member);
+    event AdditionVote(address indexed _new_admin);
+    event NewAdmin(address indexed _admin);
+    event AdditionRefused(address indexed _new_admin);
 
-    event KickVote(address indexed _member);
-    event KickedMember(address indexed _member);
-    event KickRefused(address indexed _member);
-
-    event Left(address indexed _leaver);
+    event KickVote(address indexed _admin);
+    event DeleteAdmin(address indexed _admin);
+    event KickRefused(address indexed _admin);
 
     mapping (address => bool) internal members;
     uint256 internal member_count;
@@ -39,6 +37,7 @@ contract AdministrationBoardV0 is Initializable {
         members[_owner] = true;
         member_count = 1;
         vote_percent = _vote_percent;
+        emit NewAdmin(_owner);
     }
 
     modifier memberOnly() {
@@ -126,7 +125,7 @@ contract AdministrationBoardV0 is Initializable {
                 members[_new_member] = true;
                 member_count += 1;
                 delete addition_votes[_new_member];
-                emit NewMember(_new_member);
+                emit NewAdmin(_new_member);
             }
 
         } else {
@@ -192,7 +191,7 @@ contract AdministrationBoardV0 is Initializable {
                 delete members[_member];
                 member_count -= 1;
                 delete kick_votes[_member];
-                emit KickedMember(_member);
+                emit DeleteAdmin(_member);
             }
 
         } else {
@@ -215,6 +214,6 @@ contract AdministrationBoardV0 is Initializable {
         delete kick_votes[msg.sender];
         delete members[msg.sender];
         member_count -= 1;
-        emit Left(msg.sender);
+        emit DeleteAdmin(msg.sender);
     }
 }
