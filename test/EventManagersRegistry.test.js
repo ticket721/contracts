@@ -144,7 +144,7 @@ contract('EventManagersRegistry', () => {
 
             const res = await EMR.addManager(accounts[0]);
             assert.web3Event(res, {
-                event: 'Manager',
+                event: 'NewManager',
                 args: {
                     _manager: accounts[0],
                     _adder: accounts[0],
@@ -221,7 +221,7 @@ contract('EventManagersRegistry', () => {
             await EMR.addManager(accounts[1]);
             const res = await EMR.removeManager(accounts[1]);
             assert.web3Event(res, {
-                event: 'RemovedManager',
+                event: 'DeleteManager',
                 args: {
                     _manager: accounts[1],
                     _remover: accounts[0],
@@ -271,13 +271,15 @@ contract('EventManagersRegistry', () => {
             await EMR.addManager(accounts[0]);
             const res = await EMR.leave();
             assert.web3Event(res, {
-                event: 'LeftManager',
+                event: 'DeleteManager',
                 args: {
                     _manager: accounts[0],
+                    _remover: accounts[0],
 
                     0: accounts[0],
+                    1: accounts[0],
 
-                    __length__: 1
+                    __length__: 2
                 }
             }, 'The event is emitted');
 

@@ -82,7 +82,7 @@ contract('AdministrationBoard', () => {
             assert.web3Event(res, {
                 event: 'AdditionVote',
                 args: {
-                    _new_member: accounts[1],
+                    _new_admin: accounts[1],
 
                     0: accounts[1],
 
@@ -94,9 +94,9 @@ contract('AdministrationBoard', () => {
 
             res = await AB.voteAdd.sendTransaction(accounts[1], true, {from: accounts[0]});
             assert.web3Event(res, {
-                event: 'NewMember',
+                event: 'NewAdmin',
                 args: {
-                    _new_member: accounts[1],
+                    _admin: accounts[1],
 
                     0: accounts[1],
 
@@ -120,7 +120,7 @@ contract('AdministrationBoard', () => {
             assert.web3Event(res, {
                 event: 'AdditionRefused',
                 args: {
-                    _new_member: accounts[1],
+                    _new_admin: accounts[1],
 
                     0: accounts[1],
 
@@ -342,7 +342,7 @@ contract('AdministrationBoard', () => {
             assert.web3Event(res, {
                 event: 'KickVote',
                 args: {
-                    _member: accounts[1],
+                    _admin: accounts[1],
 
                     0: accounts[1],
 
@@ -547,9 +547,9 @@ contract('AdministrationBoard', () => {
 
             const res = await AB.leave.sendTransaction({from: accounts[0]});
             assert.web3Event(res, {
-                event: 'Left',
+                event: 'DeleteAdmin',
                 args: {
-                    _leaver: accounts[0],
+                    _admin: accounts[0],
 
                     0: accounts[0],
 

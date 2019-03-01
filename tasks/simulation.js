@@ -108,7 +108,7 @@ module.exports.simulation = async function simulation(debug) {
     }
 
     report.events = [];
-    report.event_type = 'EventV0_Mipafi_Mate_Apdi';
+    report.event_type = 'Event_Mipafi_Mate_Apdi';
     for (let idx = 0; idx < events; ++idx) {
         const address = await createEvent(T721.options.address, 10, 100000, 100000, 'lel', Event, EventArtifact.bin, manager);
         report.events.push(address);
@@ -133,11 +133,9 @@ module.exports.simulation = async function simulation(debug) {
 
             signale.info(`[mint] ${selected_minter} mints on event ${idx}`);
 
-            const ticket_count = parseInt(await T721.methods.balanceOf(selected_minter).call());
+            const res = await _events[idx].methods.mint().send({from: selected_minter, value: 100});
 
-            await _events[idx].methods.mint().send({from: selected_minter, value: 100});
-
-            const ticket_id = await T721.methods.tokenOfOwnerByIndex(selected_minter, ticket_count).call();
+            const ticket_id = parseInt(res.events[0].raw.topics[2], 16);
 
             report.actions.push({
                 type: 'mint',
@@ -228,6 +226,7 @@ module.exports.simulation = async function simulation(debug) {
                         ..._ticket_ownership[selected_account]
                     ];
 
+                    const current_block = await web3.eth.getBlockNumber();
                     let selected_id = null;
                     while (selected_id === null) {
 
@@ -247,7 +246,7 @@ module.exports.simulation = async function simulation(debug) {
 
                     signale.info(`[${idx}][sell] from: ${selected_account} ticket: ${selected_id}`);
 
-                    await _events[_ticket_issuer[selected_id]].methods.sell(selected_id, 100, 10000).send({
+                    await _events[_ticket_issuer[selected_id]].methods.sell(selected_id, 100, current_block + 10000000).send({
                         from: selected_account
                     });
                     sell_list.push(selected_id);
