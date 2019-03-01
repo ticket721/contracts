@@ -1,4 +1,4 @@
-// !@! MarketerTester:Mate:0.1.0:0.5.0::uint256,uint256 !@!
+// !@! MarketerTester:Mate:0.1.0:0.5.0::price uint256,end uint256 !@!
 //
 //    /$$    /$$$$$$$$ /$$$$$$    /$$
 //   | $$   |_____ $$//$$__  $$ /$$$$
