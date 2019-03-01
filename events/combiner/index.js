@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const signale = require('signale');
 const {from_current} = require('../../tasks/misc');
+const {Portalize} = require('portalize');
 
 let arg_idx = 1;
 
@@ -10,18 +11,24 @@ const INDENT = '        ';
 
 const requirements = require('../../event_plugin_compatibility');
 
-const process_args = (args) => {
+const report = {};
+
+const process_args = (args, file_type) => {
     if (args === '') return [];
     return args.split(',').map(arg => {
+        const splitter = arg.split(' ');
+        const name = `${file_type}_${splitter[0]}`;
+        const type = splitter.slice(1).join(' ');
         ++arg_idx;
         return {
-            type: arg,
-            name: `arg${arg_idx - 1}`
+            type,
+            name,
+            description: ''
         }
     })
 };
 
-const load_dir = (dir_path) => {
+const load_dir = (dir_path, type) => {
     const complete_dir_path = path.join(from_current('./contracts'), dir_path);
     const files = fs.readdirSync(complete_dir_path);
     const ret = [];
@@ -44,11 +51,12 @@ const load_dir = (dir_path) => {
         ret.push({
             name: header[0],
             path: '../' + path.join(dir_path, file),
+            sources: fs.readFileSync(from_current(path.join('./contracts/', dir_path, file))).toString(),
             symbol: header[1],
             t721_version: header[2],
             solidity_version: header[3],
-            build_args: process_args(header[4]),
-            action_args: process_args(header[5]),
+            build_args: process_args(header[4], type),
+            action_args: process_args(header[5], type),
             raw: `/// ${header[0]} ${header[1]}, build_args: [${header[4]}], action_args: [${header[5]}], t721_version: ${header[2]}, solidity_version: ${header[3]}`
         })
     }
@@ -95,15 +103,15 @@ const create_combinations = () => {
 };
 
 const load_approvers = () => {
-    approvers = load_dir('./approvers');
+    approvers = load_dir('./approvers', 'approver');
 };
 
 const load_minters = () => {
-    minters = load_dir('./minters');
+    minters = load_dir('./minters', 'minter');
 };
 
 const load_marketers = () => {
-    marketers = load_dir('./marketers');
+    marketers = load_dir('./marketers', 'marketer');
 };
 
 const load_event = () => {
@@ -228,6 +236,7 @@ const get_build_args = (minter, marketer, approver) => {
 };
 
 const write_combinations = (t721_ver, solidity_ver) => {
+    report.events = [];
     for (const combination of combinations) {
 
         const build_args = get_build_args(combination.minter, combination.marketer, combination.approver);
@@ -246,6 +255,15 @@ const write_combinations = (t721_ver, solidity_ver) => {
 
         fs.writeFileSync(from_current(`./contracts/events/Event${build_args.name}.sol`), source);
 
+        report.events.push({
+            name: `Event${build_args.name}`,
+            solidity_version: solidity_ver,
+            t721_version: t721_ver,
+            sources: source,
+            minter: combination.minter.name,
+            marketer: combination.marketer.name,
+            approver: combination.approver.name
+        });
         signale.info(`Generated ./contracts/events/Event${build_args.name}.sol`);
 
     }
@@ -257,14 +275,51 @@ module.exports = async (t721_ver, solidity_ver) => {
     }
 
     load_minters();
+    report.minters = minters.map((minter) => ({
+        name: minter.name,
+        symbol: minter.symbol,
+        t721_version: minter.t721_version,
+        solidity_version: minter.solidity_version,
+        build_args: minter.build_args,
+        action_args: minter.action_args,
+        sources: minter.sources
+    }));
+
     load_marketers();
+    report.marketers = marketers.map((marketer) => ({
+        name: marketer.name,
+        symbol: marketer.symbol,
+        t721_version: marketer.t721_version,
+        solidity_version: marketer.solidity_version,
+        build_args: marketer.build_args,
+        action_args: marketer.action_args,
+        sources: marketer.sources
+    }));
+
     load_approvers();
+    report.approvers = approvers.map((approver) => ({
+        name: approver.name,
+        symbol: approver.symbol,
+        t721_version: approver.t721_version,
+        solidity_version: approver.solidity_version,
+        build_args: approver.build_args,
+        action_args: approver.action_args,
+        sources: approver.sources
+    }));
+
     load_event();
 
     check_plugs(t721_ver, solidity_ver);
     create_combinations();
 
     write_combinations(t721_ver, solidity_ver);
+
+    if (!process.env.TESTING) {
+        Portalize.get.setPortal(from_current('./portal'));
+        Portalize.get.setModuleName('contracts');
+
+        Portalize.get.add('event_infos.json', report);
+    }
 
     signale.info(`Generated ${combinations.length} events`);
 };

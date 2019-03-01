@@ -1,4 +1,4 @@
-// !@! MinterPayableFixed:Mipafi:0.1.0:0.5.0:uint256,uint256,uint256,string memory: !@!
+// !@! MinterPayableFixed:Mipafi:0.1.0:0.5.0:price uint256,cap uint256,end uint256,uri string memory: !@!
 //
 //    /$$    /$$$$$$$$ /$$$$$$    /$$
 //   | $$   |_____ $$//$$__  $$ /$$$$
