@@ -9,7 +9,8 @@
         "test:configure": "env T721_NETWORK=test gulp contracts:configure",
         "test:mocha": "truffle test",
         "test:solidity-coverage": "env T721_COVERAGE=true solidity-coverage",
-        "coverage:upload": "cat ./coverage/lcov.info | coveralls"
+        "coverage:upload": "cat ./coverage/lcov.info | coveralls",
+        "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
     },
     "repository": {
         "type": "git",
@@ -55,7 +56,14 @@
     ],
     "husky": {
         "hooks": {
-            "pre-commit": "editorconfig-cli"
+            "pre-commit": "editorconfig-cli",
+            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
         }
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^7.5.2",
+        "@commitlint/config-conventional": "^7.5.0",
+        "conventional-changelog-cli": "^2.0.12",
+        "websocket": "^1.0.28"
     }
 }
