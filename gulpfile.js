@@ -13,6 +13,6 @@ const {simulation} = require('./tasks/simulation');
 exports['contracts:configure'] = series(requirements, portal_requirements, configure);
 exports['contracts:compile'] = series(requirements, portal_requirements, compile);
 exports['contracts:push'] = series(requirements, portal_requirements, push);
-exports['contracts:deploy'] = series(requirements, portal_requirements, session, push, migrations, artifacter);
+exports['contracts:deploy'] = series(requirements, portal_requirements, migrations, artifacter);
 exports['contracts:clean'] = series(requirements, clean);
 exports['contracts:simulation'] = series(requirements, portal_requirements, deploy_requirements, simulation);

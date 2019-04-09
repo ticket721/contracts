@@ -14,13 +14,16 @@ pragma solidity 0.5.0;
 import "./erc/165/ERC165.sol";
 import "./erc/721/ERC721Basic.sol";
 import "./erc/721/ERC721Receiver.sol";
-import "./EventRegistryV0.sol";
+//import "./EventRegistryV0.sol";
 import "./ApproverInterface.sol";
 import "./MinterInterface.sol";
 import "zos-lib/contracts/Initializable.sol";
 import "./utility.sol";
+import "./AdministrationBoardV0.sol";
 
 contract T721V0 is Initializable, ERC165, ERC721Basic {
+
+    using utility for T721V0;
 
     uint256 internal                                            ticket_id;
     mapping (address => uint256[]) internal                     tickets_by_owner;
@@ -29,10 +32,17 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     mapping (uint256 => address) internal                       issuer_by_ticket;
     mapping (uint256 => uint256) internal                       index_by_ticket;
     mapping (address => mapping (address => bool)) internal     approvals_for_all_by_user;
-    mapping (uint256 => uint256) internal                          sale_by_ticket;
+    mapping (uint256 => uint256) internal                       sale_by_ticket;
+    mapping (bytes32 => bool) internal                          event_code_checksums;
     string internal                                             t721_name;
     string internal                                             t721_symbol;
     address internal                                            event_registry;
+    address internal                                            admin_board;
+
+    modifier admin() {
+        require(AdministrationBoardV0(admin_board).isMember(msg.sender) == true, "Method reserved for Administration Board Members");
+        _;
+    }
 
     modifier zero(address _to) {
         require(_to != address(0), "0x0000000000000000000000000000000000000000 is not a valid owner");
@@ -55,7 +65,8 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     }
 
     modifier eventOnly() {
-        require(EventRegistryV0(event_registry).isRegistered(msg.sender) == true, "Called Event is not registered in the EventRegistry");
+        //require(EventRegistryV0(event_registry).isRegistered(msg.sender) == true, "Called Event is not registered in the EventRegistry");
+        require(whitelisted_events(msg.sender) == true, "On-Chain code is not whitelisted");
         _;
     }
 
@@ -71,11 +82,26 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     //   /$$$$$$$$|  $$$$$$/ /$$$$$$$/
     //  |________/ \______/ |_______/
 
-    function initialize(address _event_registry, string memory _name, string memory _symbol) public initializer {
+    function initialize(address _event_registry, address _admin_board, string memory _name, string memory _symbol) public initializer {
         ticket_id = 1;
         t721_name = _name;
         t721_symbol = _symbol;
         event_registry = _event_registry;
+        admin_board = _admin_board;
+    }
+
+    function whitelisted_events(address _event) internal view returns (bool) {
+
+        bytes32 code = keccak256(utility.codeAt(_event));
+
+        return event_code_checksums[code];
+
+    }
+
+    function set_event_code(bytes memory _code, bool _value) public admin {
+        bytes32 checksum = keccak256(_code);
+
+        event_code_checksums[checksum] = _value;
     }
 
     //                                   /$$    /$$$$$$  /$$$$$$$
@@ -328,7 +354,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
 
         require(isSaleOpen(_ticket_id) == false, "Ticket is currently in sale");
 
-        if (EventRegistryV0(event_registry).isRegistered(issuer_by_ticket[_ticket_id]) == true) {
+        if (whitelisted_events(issuer_by_ticket[_ticket_id]) == true) {
             require(Approver(issuer_by_ticket[_ticket_id]).allowed(_from, _to, _ticket_id) == true, "Event is not allowing this transfer");
         }
 
@@ -458,10 +484,11 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     ticket_exists(_ticket_id)
     returns (string memory)
     {
-        if (EventRegistryV0(event_registry).isRegistered(issuer_by_ticket[_ticket_id]) == true) {
+        if (whitelisted_events(issuer_by_ticket[_ticket_id]) == true) {
             return Minter(issuer_by_ticket[_ticket_id]).getEventURI(_ticket_id);
+
         }
-        // TODO find something to return here
+        // TODO mint_with_uri
         return "";
     }
 

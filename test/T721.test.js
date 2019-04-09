@@ -1,5 +1,5 @@
 const {exec} = require('child_process');
-const {snapshot, update_config, session, revert, NET, push, remove_config_update, instance, node_modules_path, signale} = require('./setup');
+const {snapshot, update_config, session, revert, NET, push, remove_config_update, instance, node_modules_path, signale, get_all_events} = require('./setup');
 
 const chai = require('chai');
 const chaiProm = require('chai-as-promised');
@@ -79,8 +79,10 @@ const createT721 = async () => {
 
     signale.info('Creating T721 proxy ...');
     const ER = await instance(er_contract_name);
-    return new Promise((ok, ko) => {
-        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args ${ER.address},Test,TST --network ${NET.name}`, (err, stdout, stderr) => {
+    const AB = await instance(ab_contract_name);
+    const accounts = await web3.eth.getAccounts();
+    await new Promise((ok, ko) => {
+        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args ${ER.address},${AB.address},Test,TST --network ${NET.name}`, (err, stdout, stderr) => {
             if (err) {
                 console.error(stderr);
                 return ko(err);
@@ -88,7 +90,21 @@ const createT721 = async () => {
             signale.success('Created T721 proxy');
             ok();
         })
-    })
+    });
+
+    const t721 = await instance(contract_name);
+    const all_events = get_all_events();
+    for (const event of all_events) {
+        const bytecode = event[1].deployedBytecode;
+
+        const bytes = Buffer.from(bytecode.slice(2), 'hex');
+
+        signale.info(`Whitelisting event ${event[0]}`);
+        await t721.set_event_code(bytes, true, {
+            from: accounts[0]
+        });
+        signale.success(`Whitelisted event ${event[0]}`);
+    }
 
 };
 

@@ -1,8 +1,23 @@
-const {series} = require('gulp');
+const {from_current} = require('../misc');
+const {exec} = require('child_process');
 
-const AdministrationBoard = require('./AdministrationBoard');
-const T721 = require('./T721');
-const EventManagersRegistry = require('./EventManagersRegistry');
-const EventRegistry = require('./EventRegistry');
+const migrations = async () => {
+    const current_dir = process.cwd();
+    process.chdir(from_current(''));
 
-module.exports = series(AdministrationBoard, EventManagersRegistry, EventRegistry, T721);
+    return new Promise((ok, ko) => {
+        exec(`${from_current('./node_modules/.bin/truffle')} migrate --network ${process.env.T721_NETWORK}`,
+            (err, stdout, stderr) => {
+                console.log(stdout);
+                console.error(stderr);
+                if (err) {
+                    return ko(err);
+                }
+                process.chdir(current_dir);
+                ok();
+            });
+    })
+};
+
+module.exports = migrations;
+
