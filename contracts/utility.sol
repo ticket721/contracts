@@ -28,7 +28,7 @@ library utility {
 
     }
 
-    function codeAt(address _addr) public view returns (bytes memory o_code) {
+    function codeAt(address _addr) internal view returns (bytes memory o_code) {
         assembly {
         // retrieve the size of the code, this needs assembly
             let size := extcodesize(_addr)

@@ -5,6 +5,8 @@ const glob = require('glob');
 const {exec} = require('child_process');
 const {Signale} = require('signale');
 
+const from_current = (add_path) => path.join(path.resolve(path.join(__dirname, '../../')), add_path);
+
 const signale_options = {
     disabled: false,
     interactive: false,
@@ -170,6 +172,12 @@ const instance = async (contract, address) => {
 
 };
 
+const getAllEvents = () => {
+    return fs.readdirSync(from_current('./build/contracts'))
+        .filter(filename => filename.indexOf('Event_') === 0)
+        .map(filename => [filename, require(path.join(from_current('./build/contracts'), filename))]);
+};
+
 module.exports.signale = signale;
 module.exports.instance = instance;
 module.exports.revert = revert;
@@ -179,3 +187,4 @@ module.exports.update_config = update_config;
 module.exports.push = push;
 module.exports.snapshot = snapshot;
 module.exports.node_modules_path = node_modules_path;
+module.exports.get_all_events = getAllEvents;
