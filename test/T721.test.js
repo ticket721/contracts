@@ -11,8 +11,6 @@ const expect = chai.expect;
 
 const contract_name = 'T721V0';
 const ab_contract_name = 'AdministrationBoardV0';
-const er_contract_name = 'EventRegistryV0';
-const emr_contract_name = 'EventManagersRegistryV0';
 
 let accounts = [];
 
@@ -40,49 +38,13 @@ const createAdministrationBoard = async (percent = 51) => {
 
 };
 
-const createEventManagersRegistry = async () => {
-
-    signale.info('Creating EventManagersRegistry proxy ...');
-    const AB = await instance(ab_contract_name);
-    return new Promise((ok, ko) => {
-        exec(`${node_modules_path()}/.bin/zos create EventManagersRegistry --init initialize --args ${AB.address} --network ${NET.name}`, (err, stdout, stderr) => {
-            if (err) {
-                console.error(stderr);
-                return ko(err);
-            }
-            signale.success('Created EventManagersRegistry proxy');
-            ok();
-        })
-    })
-
-};
-
-const createEventRegistry = async () => {
-
-    signale.info('Creating EventRegistry proxy ...');
-    const AB = await instance(ab_contract_name);
-    const EMR = await instance(emr_contract_name);
-    return new Promise((ok, ko) => {
-        exec(`${node_modules_path()}/.bin/zos create EventRegistry --init initialize --args ${AB.address},${EMR.address} --network ${NET.name}`, (err, stdout, stderr) => {
-            if (err) {
-                console.error(stderr);
-                return ko(err);
-            }
-            signale.success('Created EventRegistry proxy');
-            ok();
-        })
-    })
-
-};
-
 const createT721 = async () => {
 
     signale.info('Creating T721 proxy ...');
-    const ER = await instance(er_contract_name);
     const AB = await instance(ab_contract_name);
     const accounts = await web3.eth.getAccounts();
     await new Promise((ok, ko) => {
-        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args ${ER.address},${AB.address},Test,TST --network ${NET.name}`, (err, stdout, stderr) => {
+        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args ${AB.address},Test,TST --network ${NET.name}`, (err, stdout, stderr) => {
             if (err) {
                 console.error(stderr);
                 return ko(err);
@@ -162,30 +124,6 @@ const addMembers = async () => {
 
 };
 
-const addManagers = async () => {
-
-    signale.info('Adding initial Managers ...');
-
-    const accounts = await web3.eth.getAccounts();
-    const EMR = await instance(emr_contract_name);
-
-    await EMR.addManager(accounts[0]);
-    await EMR.addManager(accounts[1]);
-    await EMR.addManager(accounts[2]);
-    await EMR.addManager(accounts[3]);
-    await EMR.addManager(accounts[4]);
-
-    if (((await EMR.isManager(accounts[0])) === false) ||
-        ((await EMR.isManager(accounts[1])) === false) ||
-        ((await EMR.isManager(accounts[2])) === false) ||
-        ((await EMR.isManager(accounts[3])) === false) ||
-        ((await EMR.isManager(accounts[4])) === false)) {
-        throw new Error('Z One Two Three and Four should be managers now');
-    }
-    signale.success('Added initial Managers: Z One Two Three Four');
-
-};
-
 const event_names = {
 
     MinterPayableFixed_MarketerDisabled_ApproverDisabled: 'Event_Mipafi_Madi_Apdi',
@@ -208,36 +146,20 @@ const createEvent = async (event_name, address, args) => {
     signale.info(`Creating ${event_name} instance ...`);
     const arti = await artifacts.require(event_name);
     events[event_name] = await arti.new(address, ...args);
+    await events[event_name].start();
     signale.success(`Created ${event_name} instance`);
-};
-
-const registerEvent = async (event_name) => {
-
-    signale.info(`Registering ${event_name} instance ...`);
-
-    const accounts = await web3.eth.getAccounts();
-    const ER = await instance(er_contract_name);
-
-    await ER.registerEvent(events[event_name].address, {from: accounts[0]});
-
-    signale.success(`Registered ${event_name} instance`);
-
 };
 
 const create = async () => {
 
     await createAdministrationBoard();
-    await createEventManagersRegistry();
-    await createEventRegistry();
     await createT721();
     await createTestERC721Receiver();
     await createBadTestERC721Receiver();
     await addMembers();
-    await addManagers();
     const t721_address = (await instance(contract_name)).address;
     for (const event of Object.values(event_names)) {
         await createEvent(event, t721_address, event_initializers[event]);
-        await registerEvent(event);
     }
 
 };

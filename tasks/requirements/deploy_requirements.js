@@ -15,22 +15,6 @@ module.exports = async function deploy_requirements() {
 
     if (!Portalize.get.requires({
         action: 'add',
-        file: 'EventManagersRegistryV0.artifact.json',
-        from: 'contracts'
-    })) {
-        throw new Error('Cannot find artifact for contract EventManagersRegistry. Run deploy before simulation');
-    }
-
-    if (!Portalize.get.requires({
-        action: 'add',
-        file: 'EventRegistryV0.artifact.json',
-        from: 'contracts'
-    })) {
-        throw new Error('Cannot find artifact for contract EventRegistry. Run deploy before simulation');
-    }
-
-    if (!Portalize.get.requires({
-        action: 'add',
         file: 'T721V0.artifact.json',
         from: 'contracts'
     })) {

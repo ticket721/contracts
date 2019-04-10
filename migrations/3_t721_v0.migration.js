@@ -10,14 +10,12 @@ const {Portalize} = require('portalize');
 async function deploy(options, net_config) {
 
     const AdministrationBoard = artifacts.require('./AdministrationBoardV0');
-    const EventRegistry = artifacts.require('./EventRegistryV0');
 
     //add({ contractsData: [{ name: 'T721V0', alias: 'T721' }] });
 
     await push(options);
 
     const res = await create(Object.assign({ contractAlias: 'T721', initMethod: 'initialize', initArgs: [
-            EventRegistry.address,
             AdministrationBoard.address,
             'Ticket 721',
             't721'
