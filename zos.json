@@ -4,8 +4,6 @@
     "version": "0.1.0",
     "contracts": {
         "AdministrationBoard": "AdministrationBoardV0",
-        "EventManagersRegistry": "EventManagersRegistryV0",
-        "EventRegistry": "EventRegistryV0",
         "T721": "T721V0"
     }
 }

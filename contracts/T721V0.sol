@@ -14,7 +14,6 @@ pragma solidity 0.5.0;
 import "./erc/165/ERC165.sol";
 import "./erc/721/ERC721Basic.sol";
 import "./erc/721/ERC721Receiver.sol";
-//import "./EventRegistryV0.sol";
 import "./ApproverInterface.sol";
 import "./MinterInterface.sol";
 import "zos-lib/contracts/Initializable.sol";
@@ -65,7 +64,6 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     }
 
     modifier eventOnly() {
-        //require(EventRegistryV0(event_registry).isRegistered(msg.sender) == true, "Called Event is not registered in the EventRegistry");
         require(whitelisted_events(msg.sender) == true, "On-Chain code is not whitelisted");
         _;
     }
@@ -75,6 +73,8 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         _;
     }
 
+    event Event(address indexed _adder, address indexed _event);
+
     //   /$$$$$$$$  /$$$$$$   /$$$$$$$
     //  |____ /$$/ /$$__  $$ /$$_____/
     //     /$$$$/ | $$  \ $$|  $$$$$$
@@ -82,12 +82,15 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     //   /$$$$$$$$|  $$$$$$/ /$$$$$$$/
     //  |________/ \______/ |_______/
 
-    function initialize(address _event_registry, address _admin_board, string memory _name, string memory _symbol) public initializer {
+    function initialize(address _admin_board, string memory _name, string memory _symbol) public initializer {
         ticket_id = 1;
         t721_name = _name;
         t721_symbol = _symbol;
-        event_registry = _event_registry;
         admin_board = _admin_board;
+    }
+
+    function register(address _owner) public eventOnly {
+        emit Event(_owner, msg.sender);
     }
 
     function whitelisted_events(address _event) internal view returns (bool) {

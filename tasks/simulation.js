@@ -14,6 +14,7 @@ const createEvent = async (t721, price, cap, end, uri, arti, bin, from) => {
         from,
         gas: 0xffffff
     });
+    await instance.methods.start().send({from});
     signale.success(`Created Event instance`);
     return instance.options.address;
 };
@@ -56,18 +57,10 @@ module.exports.simulation = async function simulation(debug) {
     }
 
     const AdministrationBoardArtifact = Portalize.get.get('AdministrationBoardV0.artifact.json');
-    const EventManagersRegistryArtifact = Portalize.get.get('EventManagersRegistryV0.artifact.json');
-    const EventRegistryArtifact = Portalize.get.get('EventRegistryV0.artifact.json');
     const T721Artifact = Portalize.get.get('T721V0.artifact.json');
     const EventArtifact = Portalize.get.get('Event_Mipafi_Mate_Apdi.artifact.json');
 
     const AdministrationBoard = new web3.eth.Contract(AdministrationBoardArtifact.abi, AdministrationBoardArtifact.networks[network_infos.network_id].address, {
-        gas: 0xfffff
-    });
-    const EventManagersRegistry = new web3.eth.Contract(EventManagersRegistryArtifact.abi, EventManagersRegistryArtifact.networks[network_infos.network_id].address, {
-        gas: 0xfffff
-    });
-    const EventRegistry = new web3.eth.Contract(EventRegistryArtifact.abi, EventRegistryArtifact.networks[network_infos.network_id].address, {
         gas: 0xfffff
     });
     const T721 = new web3.eth.Contract(T721Artifact.abi, T721Artifact.networks[network_infos.network_id].address, {
@@ -91,29 +84,12 @@ module.exports.simulation = async function simulation(debug) {
         throw new Error('No admins in default accounts, cannot add one');
     }
 
-    let manager = null;
-
-    for (let idx = 0; idx < accounts; ++idx) {
-        const is_manager = await EventManagersRegistry.methods.isManager(_accounts[idx]).call();
-
-        if (is_manager) {
-            manager = _accounts[idx];
-            break ;
-        }
-    }
-
-    if (manager === null) {
-        await EventManagersRegistry.methods.addManager(_accounts[0]).send({from: admin});
-        manager = _accounts[0];
-    }
-
     report.events = [];
     report.event_type = 'Event_Mipafi_Mate_Apdi';
     for (let idx = 0; idx < events; ++idx) {
-        const address = await createEvent(T721.options.address, 10, 100000, 100000, 'lel', Event, EventArtifact.bin, manager);
+        const address = await createEvent(T721.options.address, 10, 100000, 100000, 'lel', Event, EventArtifact.bin, _accounts[Math.floor(Math.random() * accounts)]);
         report.events.push(address);
         _events.push(new web3.eth.Contract(EventArtifact.abi, address, {gas: 0xffffffffff}));
-        await EventRegistry.methods.registerEvent(address).send({from: manager});
     }
 
     const _ticket_ownership = {};
