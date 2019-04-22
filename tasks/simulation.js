@@ -5,10 +5,10 @@ const {argv} = require('yargs');
 const {exec} = require('child_process');
 const signale = require('signale');
 
-const createEvent = async (t721, price, cap, end, uri, arti, bin, from) => {
+const createEvent = async (t721, price, cap, end, arti, bin, from) => {
     signale.info(`Creating Event instance ...`);
     const instance = await arti.deploy({
-        arguments: [t721, price, cap, end, uri],
+        arguments: [t721, price, cap, end],
         data: bin
     }).send({
         from,
@@ -87,7 +87,7 @@ module.exports.simulation = async function simulation(debug) {
     report.events = [];
     report.event_type = 'Event_Mipafi_Mate_Apdi';
     for (let idx = 0; idx < events; ++idx) {
-        const address = await createEvent(T721.options.address, 10, 100000, 100000, 'lel', Event, EventArtifact.bin, _accounts[Math.floor(Math.random() * accounts)]);
+        const address = await createEvent(T721.options.address, 10, 100000, 100000, Event, EventArtifact.bin, _accounts[Math.floor(Math.random() * accounts)]);
         report.events.push(address);
         _events.push(new web3.eth.Contract(EventArtifact.abi, address, {gas: 0xffffffffff}));
     }

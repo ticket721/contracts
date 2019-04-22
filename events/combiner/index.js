@@ -22,8 +22,7 @@ const process_args = (args, file_type) => {
         ++arg_idx;
         return {
             type,
-            name,
-            description: ''
+            name
         }
     })
 };
