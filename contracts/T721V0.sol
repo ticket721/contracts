@@ -35,6 +35,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     mapping (bytes32 => bool) internal                          event_code_checksums;
     string internal                                             t721_name;
     string internal                                             t721_symbol;
+    string internal                                             server;
     address internal                                            event_registry;
     address internal                                            admin_board;
 
@@ -82,11 +83,20 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     //   /$$$$$$$$|  $$$$$$/ /$$$$$$$/
     //  |________/ \______/ |_______/
 
-    function initialize(address _admin_board, string memory _name, string memory _symbol) public initializer {
+    function initialize(address _admin_board, string memory _name, string memory _symbol, string memory _server) public initializer {
         ticket_id = 1;
         t721_name = _name;
         t721_symbol = _symbol;
         admin_board = _admin_board;
+        server = _server;
+    }
+
+    function get_server() public view returns (string memory) {
+        return server;
+    }
+
+    function set_server(string memory _server) public admin {
+        server = _server;
     }
 
     function register(address _owner) public eventOnly {

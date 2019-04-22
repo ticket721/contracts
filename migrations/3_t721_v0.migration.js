@@ -11,14 +11,13 @@ async function deploy(options, net_config) {
 
     const AdministrationBoard = artifacts.require('./AdministrationBoardV0');
 
-    //add({ contractsData: [{ name: 'T721V0', alias: 'T721' }] });
-
     await push(options);
 
     const res = await create(Object.assign({ contractAlias: 'T721', initMethod: 'initialize', initArgs: [
             AdministrationBoard.address,
             'Ticket 721',
-            't721'
+            't721',
+            net_config.server
         ] }, options));
 
     const event_types = fs.readdirSync(from_current('./build/contracts'))

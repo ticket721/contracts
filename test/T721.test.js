@@ -44,7 +44,7 @@ const createT721 = async () => {
     const AB = await instance(ab_contract_name);
     const accounts = await web3.eth.getAccounts();
     await new Promise((ok, ko) => {
-        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args ${AB.address},Test,TST --network ${NET.name}`, (err, stdout, stderr) => {
+        exec(`${node_modules_path()}/.bin/zos create T721 --init initialize --args ${AB.address},Test,TST,uri --network ${NET.name}`, (err, stdout, stderr) => {
             if (err) {
                 console.error(stderr);
                 return ko(err);
@@ -134,9 +134,9 @@ const event_names = {
 
 const event_initializers = {
 
-    'Event_Mipafi_Madi_Apdi': [1000, 1000, 1000, `test1`],
-    'Event_Mipafi_Mate_Apte': [1000, 1000, 1000, `test2`],
-    'Event_Mipafi_Mate_Apdi': [1000, 1000, 1000, `test3`]
+    'Event_Mipafi_Madi_Apdi': [1000, 1000, 1000],
+    'Event_Mipafi_Mate_Apte': [1000, 1000, 1000],
+    'Event_Mipafi_Mate_Apdi': [1000, 1000, 1000]
 
 };
 
@@ -767,12 +767,31 @@ contract('T721', () => {
 
             });
 
-            it(`[event.mint Z] [tokenURI 1 == 'test1']`, async () => {
+            it(`[event.mint Z] [tokenURI 1 == 'uri1'] [tokenURI 2 == 'uri2']`, async () => {
 
                 const T721 = await instance(contract_name);
                 const event = events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled];
 
                 await event.mint({value: 1000});
+
+                await expect(T721.tokenURI(1)).to.eventually.equal('uri1');
+
+                await event.mint({value: 1000});
+
+                return expect(T721.tokenURI(2)).to.eventually.equal('uri2');
+
+            });
+
+            it(`[event.mint Z] [tokenURI 1 == 'uri1'] [set_server test] [tokenURI 1 === 'test1']`, async () => {
+
+                const T721 = await instance(contract_name);
+                const event = events[event_names.MinterPayableFixed_MarketerDisabled_ApproverDisabled];
+
+                await event.mint({value: 1000});
+
+                await expect(T721.tokenURI(1)).to.eventually.equal('uri1');
+
+                await T721.set_server('test', {from: accounts[0]});
 
                 return expect(T721.tokenURI(1)).to.eventually.equal('test1');
 
