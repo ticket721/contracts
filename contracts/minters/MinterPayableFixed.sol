@@ -36,6 +36,7 @@ contract MinterPayableFixed is Minter {
         utility.i_do_not_keep_the_change(sell_price);
 
         T721V0(t721).mint(msg.sender);
+        tickets_sold += 1;
     }
 
     function getMintPrice() public view returns (uint256) {
