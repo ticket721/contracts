@@ -51,8 +51,16 @@ contract MinterPayableFixed is Minter {
         return tickets_sold;
     }
 
+    function stringToBytes32(string memory source) internal pure returns (bytes32 result) {
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
+
     function getTicketInfos(uint256) public view returns (bytes32[] memory) {
-        return new bytes32[](0);
+        bytes32[] memory ret = new bytes32[](1);
+        ret[0] = stringToBytes32("regular");
+        return ret;
     }
 
     function uint2str(uint _i) internal pure returns (string memory _uintAsString) {

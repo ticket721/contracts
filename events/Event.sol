@@ -39,10 +39,4 @@ contract Event/*$${{NAME}}$$*/ is /*$${{INHERITANCE}}$$*/ {
 /*$${INITIALIZER_BODY}$$*/
     }
 
-    function supportsInterface(bytes4 _interface) public pure returns (bool) {
-        return ((_interface == getMarketerInterfaceSignature())
-        || (_interface == getMinterInterfaceSignature())
-        || (_interface == getApproverInterfaceSignature()));
-    }
-
 }
