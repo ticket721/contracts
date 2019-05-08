@@ -194,6 +194,8 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         emit Transfer(msg.sender, _to, ticket_id);
 
         ++ticket_id;
+
+        return ticket_id - 1;
     }
 
     function openSale(uint256 _ticket_id, uint256 _end) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) {
