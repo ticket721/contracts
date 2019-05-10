@@ -14,6 +14,7 @@ pragma solidity 0.5.0;
 
 contract Approver {
 
+    function market_allowed(address, address, uint256) public view returns (bool);
     function allowed(address, address, uint256) public view returns (bool);
     function getApproverSignature() public view returns (string memory);
 

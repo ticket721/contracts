@@ -20,6 +20,10 @@ contract ApproverDisabled is Approver {
         return true;
     }
 
+    function market_allowed(address, address, uint256) public view returns (bool) {
+        return true;
+    }
+
     function getApproverSignature() public view returns (string memory) {
         return "ApproverDisabled:0.1.0:0.5.0";
     }

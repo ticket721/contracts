@@ -166,6 +166,48 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         );
     }
 
+    /// @notice the core transfer mechanism
+    /// @param _from The current owner of the NFT
+    /// @param _to The new owner
+    /// @param _ticket_id The NFT to transfer
+    /// @param _raw used to differentiate marketplace action from standalone transfer, and apply approver constraints if needed
+    function raw_transfer(address _from, address _to, uint256 _ticket_id, bool _raw) private
+    zero(_from)
+    zero(_to)
+    ticket(_ticket_id)
+    ticket_exists(_ticket_id)
+    owner(_ticket_id, _from)
+    {
+        require((
+            (msg.sender == _from) || // Caller owns the ticket
+            (getApproved(_ticket_id) == msg.sender) || // Ticket owner gave right to msg.sender to operate on this ticket
+            (isApprovedForAll(_from, msg.sender) == true) // Ticket owner gave right to msg.sender to operate on all his tickets
+            ), "You don't have the required rights");
+
+        require(isSaleOpen(_ticket_id) == false, "Ticket is currently in sale");
+
+        if (whitelisted_events(issuer_by_ticket[_ticket_id]) == true) {
+            if (_raw == true) {
+                require(Approver(issuer_by_ticket[_ticket_id]).allowed(_from, _to, _ticket_id) == true, "Event is not allowing this transfer");
+            } else {
+                require(Approver(issuer_by_ticket[_ticket_id]).market_allowed(_from, _to, _ticket_id) == true, "Event is not allowing this marketplace transfer");
+            }
+        }
+
+        delete tickets_by_owner[_from][index_by_ticket[_ticket_id]];
+
+        if (approved_by_ticket[_ticket_id] != address(0)) {
+            delete approved_by_ticket[_ticket_id];
+        }
+
+        owner_by_ticket[_ticket_id] = _to;
+        uint256 ticket_index = tickets_by_owner[_to].push(_ticket_id) - 1;
+        index_by_ticket[_ticket_id] = ticket_index;
+
+        emit Transfer(_from, _to, _ticket_id);
+
+    }
+
     //     /$$    /$$$$$$$$ /$$$$$$    /$$
     //    | $$   |_____ $$//$$__  $$ /$$$$
     //   /$$$$$$      /$$/|__/  \ $$|_  $$
@@ -227,7 +269,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
 
         approved_by_ticket[_ticket_id] = msg.sender;
         delete sale_by_ticket[_ticket_id];
-        safeTransferFrom(owner_by_ticket[_ticket_id], _buyer, _ticket_id);
+        raw_transfer(owner_by_ticket[_ticket_id], _buyer, _ticket_id, false);
 
     }
 
@@ -355,36 +397,8 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     /// @param _to The new owner
     /// @param _ticket_id The NFT to transfer
     function transferFrom(address _from, address _to, uint256 _ticket_id) public
-    zero(_from)
-    zero(_to)
-    ticket(_ticket_id)
-    ticket_exists(_ticket_id)
-    owner(_ticket_id, _from)
     {
-        require((
-            (msg.sender == _from) || // Caller owns the ticket
-            (getApproved(_ticket_id) == msg.sender) || // Ticket owner gave right to msg.sender to operate on this ticket
-            (isApprovedForAll(_from, msg.sender) == true) // Ticket owner gave right to msg.sender to operate on all his tickets
-            ), "You don't have the required rights");
-
-        require(isSaleOpen(_ticket_id) == false, "Ticket is currently in sale");
-
-        if (whitelisted_events(issuer_by_ticket[_ticket_id]) == true) {
-            require(Approver(issuer_by_ticket[_ticket_id]).allowed(_from, _to, _ticket_id) == true, "Event is not allowing this transfer");
-        }
-
-        delete tickets_by_owner[_from][index_by_ticket[_ticket_id]];
-
-        if (approved_by_ticket[_ticket_id] != address(0)) {
-            delete approved_by_ticket[_ticket_id];
-        }
-
-        owner_by_ticket[_ticket_id] = _to;
-        uint256 ticket_index = tickets_by_owner[_to].push(_ticket_id) - 1;
-        index_by_ticket[_ticket_id] = ticket_index;
-
-        emit Transfer(_from, _to, _ticket_id);
-
+        raw_transfer(_from, _to, _ticket_id, true);
     }
 
     /// @notice Transfers the ownership of an NFT from one address to another address
@@ -394,7 +408,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     /// @param _to The new owner
     /// @param _ticket_id The NFT to transfer
     function safeTransferFrom(address _from, address _to, uint256 _ticket_id) public {
-        transferFrom(_from, _to, _ticket_id);
+        raw_transfer(_from, _to, _ticket_id, true);
         require(!(
         utility.isContract(_to) &&
         ERC721Receiver(_to).onERC721Received(_from, _ticket_id, "") != ERC721Receiver(0).onERC721Received.selector
@@ -414,7 +428,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     /// @param _ticket_id The NFT to transfer
     /// @param _data Additional data with no specified format, sent in call to `_to`
     function safeTransferFrom(address _from, address _to, uint256 _ticket_id, bytes memory _data) public {
-        transferFrom(_from, _to, _ticket_id);
+        raw_transfer(_from, _to, _ticket_id, true);
         require(!(
         utility.isContract(_to) &&
         ERC721Receiver(_to).onERC721Received(_from, _ticket_id, _data) != ERC721Receiver(0).onERC721Received.selector
