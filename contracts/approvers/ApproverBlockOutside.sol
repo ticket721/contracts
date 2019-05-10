@@ -1,4 +1,4 @@
-// !@! ApproverTester:Apte:0.1.0:0.5.0:: !@!
+// !@! ApproverBlockOutside:Apblou:0.1.0:0.5.0:: !@!
 //
 //    /$$    /$$$$$$$$ /$$$$$$    /$$
 //   | $$   |_____ $$//$$__  $$ /$$$$
@@ -13,19 +13,20 @@
 pragma solidity 0.5.0;
 
 import "../ApproverInterface.sol";
+import "../utility.sol";
 
-contract ApproverTester is Approver {
+contract ApproverBlockOutside is Approver {
 
     function allowed(address, address, uint256) public view returns (bool) {
         return false;
     }
 
-    function market_allowed(address, address, uint256) public view returns (bool) {
-        return true;
+    function market_allowed(address, address _to, uint256) public view returns (bool) {
+        return !utility.isContract(_to);
     }
 
     function getApproverSignature() public view returns (string memory) {
-        return "ApproverTester:0.1.0:0.5.0";
+        return "ApproverBlockOutside:0.1.0:0.5.0";
     }
 
     function approver_set_T721(address) internal pure {}
