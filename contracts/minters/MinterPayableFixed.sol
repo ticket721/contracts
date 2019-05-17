@@ -32,6 +32,7 @@ contract MinterPayableFixed is Minter {
     }
 
     function mint() public payable {
+        require(block.timestamp < end, "Sale ended");
         require(tickets_sold < ticket_cap, "All tickets sold out");
         utility.i_do_not_keep_the_change(sell_price);
 

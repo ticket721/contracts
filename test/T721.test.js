@@ -134,9 +134,9 @@ const event_names = {
 
 const event_initializers = {
 
-    'Event_Mipafi_Madi_Apdi': [1000, 1000, 1000],
-    'Event_Mipafi_Mate_Apte': [1000, 1000, 1000],
-    'Event_Mipafi_Mate_Apdi': [1000, 1000, 1000]
+    'Event_Mipafi_Madi_Apdi': [1000, 1000, Math.floor(Date.now() / 1000) + (12 * 60 * 60)],
+    'Event_Mipafi_Mate_Apte': [1000, 1000, Math.floor(Date.now() / 1000) + (12 * 60 * 60)],
+    'Event_Mipafi_Mate_Apdi': [1000, 1000, Math.floor(Date.now() / 1000) + (12 * 60 * 60)]
 
 };
 
