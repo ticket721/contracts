@@ -51,6 +51,8 @@ module.exports.simulation = async function simulation(debug) {
     const network_infos = Portalize.get.get('network.json', {module: 'network'});
     const web3 = new Web3(new Web3.providers.HttpProvider(`http://${network_infos.host}:${network_infos.port}`));
 
+    const gasPrice = await web3.eth.getGasPrice();
+
     const _accounts = (await web3.eth.getAccounts()).filter((address) => address !== network_infos.deployer);
     if (_accounts.length < accounts) {
         throw new Error(`Invalid number of accounts, available accounts => ${_accounts.length}`);
@@ -61,10 +63,12 @@ module.exports.simulation = async function simulation(debug) {
     const EventArtifact = Portalize.get.get('Event_Mipafi_Mate_Apdi.artifact.json');
 
     const AdministrationBoard = new web3.eth.Contract(AdministrationBoardArtifact.abi, AdministrationBoardArtifact.networks[network_infos.network_id].address, {
-        gas: 0xfffff
+        gas: 0xfffff,
+        gasPrice
     });
     const T721 = new web3.eth.Contract(T721Artifact.abi, T721Artifact.networks[network_infos.network_id].address, {
-        gas: 0xfffff
+        gas: 0xfffff,
+        gasPrice
     });
     const Event = new web3.eth.Contract(EventArtifact.abi);
 
@@ -86,10 +90,11 @@ module.exports.simulation = async function simulation(debug) {
 
     report.events = [];
     report.event_type = 'Event_Mipafi_Mate_Apdi';
+    const end = (Date.now() / 1000) + 60 * 60;
     for (let idx = 0; idx < events; ++idx) {
-        const address = await createEvent(T721.options.address, 10, 100000, 100000, Event, EventArtifact.bin, _accounts[Math.floor(Math.random() * accounts)]);
+        const address = await createEvent(T721.options.address, 10, 100000, end, Event, EventArtifact.bin, _accounts[Math.floor(Math.random() * accounts)]);
         report.events.push(address);
-        _events.push(new web3.eth.Contract(EventArtifact.abi, address, {gas: 0xffffffffff}));
+        _events.push(new web3.eth.Contract(EventArtifact.abi, address, {gas: 0xffffff, gasPrice}));
     }
 
     const _ticket_ownership = {};
@@ -109,7 +114,7 @@ module.exports.simulation = async function simulation(debug) {
 
             signale.info(`[mint] ${selected_minter} mints on event ${idx}`);
 
-            const res = await _events[idx].methods.mint().send({from: selected_minter, value: 100});
+            const res = await _events[idx].methods.mint().send({from: selected_minter, value: 100, gasPrice});
 
             const ticket_id = parseInt(res.events[0].raw.topics[2], 16);
 
@@ -182,7 +187,7 @@ module.exports.simulation = async function simulation(debug) {
 
                     signale.info(`[${idx}][transfer] from: ${selected_account} to: ${selected_target} ticket: ${selected_id}`);
 
-                    await T721.methods.transferFrom(selected_account, selected_target, selected_id).send({from: selected_account});
+                    await T721.methods.transferFrom(selected_account, selected_target, selected_id).send({from: selected_account, gasPrice});
 
                     const current_idx = _ticket_ownership[selected_account].indexOf(selected_id);
                     _ticket_ownership[selected_target].push(_ticket_ownership[selected_account][current_idx]);
@@ -223,7 +228,8 @@ module.exports.simulation = async function simulation(debug) {
                     signale.info(`[${idx}][sell] from: ${selected_account} ticket: ${selected_id}`);
 
                     await _events[_ticket_issuer[selected_id]].methods.sell(selected_id, 100, current_block + 10000000).send({
-                        from: selected_account
+                        from: selected_account,
+                        gasPrice
                     });
                     sell_list.push(selected_id);
 
@@ -264,6 +270,7 @@ module.exports.simulation = async function simulation(debug) {
 
                     await _events[_ticket_issuer[selected_id]].methods.buy(selected_id).send({
                         from: selected_account,
+                        gasPrice,
                         value: 100
                     });
 
@@ -314,7 +321,8 @@ module.exports.simulation = async function simulation(debug) {
                     signale.info(`[${idx}][close_sale] from: ${selected_account} ticket: ${selected_id}`);
 
                     await _events[_ticket_issuer[selected_id]].methods.test_closeSale(selected_id).send({
-                        from: selected_account
+                        from: selected_account,
+                        gasPrice
                     });
 
                     const sell_list_idx = sell_list.indexOf(selected_id);
