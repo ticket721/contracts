@@ -17,15 +17,15 @@ import "../MarketerInterface.sol";
 contract MarketerDisabled is Marketer {
 
     function buy(uint256) pure public {
-        revert("Buying is disabled");
+        revert("[Madi] Buying is disabled");
     }
 
     function sell(uint256) pure public {
-        revert("Selling is disabled");
+        revert("[Madi] Selling is disabled");
     }
 
     function getSellPrice(uint256) public view returns (uint256) {
-        revert("Selling is disabled");
+        revert("[Madi] Selling is disabled");
         return 0;
     }
 

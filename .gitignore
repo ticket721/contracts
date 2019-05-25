@@ -11,3 +11,4 @@ truffle-config.js
 zos.*.json
 coverage
 coverage.json
+package-lock.json

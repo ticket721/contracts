@@ -40,37 +40,37 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     address internal                                            admin_board;
 
     modifier admin() {
-        require(AdministrationBoardV0(admin_board).isMember(msg.sender) == true, "Method reserved for Administration Board Members");
+        require(AdministrationBoardV0(admin_board).isMember(msg.sender) == true, "[T721] Method reserved for Administration Board Members");
         _;
     }
 
     modifier zero(address _to) {
-        require(_to != address(0), "0x0000000000000000000000000000000000000000 is not a valid owner");
+        require(_to != address(0), "[T721] 0x0000000000000000000000000000000000000000 is not a valid owner");
         _;
     }
 
     modifier ticket(uint256 _ticket_id) {
-        require(_ticket_id != 0, "0 is an invalid ticket id");
+        require(_ticket_id != 0, "[T721] 0 is an invalid ticket id");
         _;
     }
 
     modifier ticket_exists(uint256 _ticket_id) {
-        require(exists(_ticket_id) == true, "Ticket does not exists");
+        require(exists(_ticket_id) == true, "[T721] Ticket does not exists");
         _;
     }
 
     modifier owner(uint256 _ticket_id, address _owner) {
-        require(ownerOf(_ticket_id) == _owner, "Method reserved for the ticket owner");
+        require(ownerOf(_ticket_id) == _owner, "[T721] Method reserved for the ticket owner");
         _;
     }
 
     modifier eventOnly() {
-        require(whitelisted_events(msg.sender) == true, "On-Chain code is not whitelisted");
+        require(whitelisted_events(msg.sender) == true, "[T721] On-Chain code is not whitelisted");
         _;
     }
 
     modifier issuer(uint256 _ticket_id) {
-        require(issuer_by_ticket[_ticket_id] == msg.sender, "Only ticket issuer is allowed to call this method");
+        require(issuer_by_ticket[_ticket_id] == msg.sender, "[T721] Only ticket issuer is allowed to call this method");
         _;
     }
 
@@ -182,15 +182,15 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
             (msg.sender == _from) || // Caller owns the ticket
             (getApproved(_ticket_id) == msg.sender) || // Ticket owner gave right to msg.sender to operate on this ticket
             (isApprovedForAll(_from, msg.sender) == true) // Ticket owner gave right to msg.sender to operate on all his tickets
-            ), "You don't have the required rights");
+            ), "[T721] You don't have the required rights");
 
-        require(isSaleOpen(_ticket_id) == false, "Ticket is currently in sale");
+        require(isSaleOpen(_ticket_id) == false, "[T721] Ticket is currently in sale");
 
         if (whitelisted_events(issuer_by_ticket[_ticket_id]) == true) {
             if (_raw == true) {
-                require(Approver(issuer_by_ticket[_ticket_id]).allowed(_from, _to, _ticket_id) == true, "Event is not allowing this transfer");
+                require(Approver(issuer_by_ticket[_ticket_id]).allowed(_from, _to, _ticket_id) == true, "[T721] Event is not allowing this transfer");
             } else {
-                require(Approver(issuer_by_ticket[_ticket_id]).market_allowed(_from, _to, _ticket_id) == true, "Event is not allowing this marketplace transfer");
+                require(Approver(issuer_by_ticket[_ticket_id]).market_allowed(_from, _to, _ticket_id) == true, "[T721] Event is not allowing this marketplace transfer");
             }
         }
 
@@ -241,8 +241,8 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     }
 
     function openSale(uint256 _ticket_id, uint256 _end) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) {
-        require(isSaleOpen(_ticket_id) == false, "Sale already started");
-        require(_end > block.number, "Invalid end block");
+        require(isSaleOpen(_ticket_id) == false, "[T721] Sale already started");
+        require(_end > block.timestamp, "[T721] Invalid end timestamp");
 
         sale_by_ticket[_ticket_id] = _end;
 
@@ -250,7 +250,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     }
 
     function closeSale(uint256 _ticket_id) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) {
-        require(isSaleOpen(_ticket_id) == true, "Ticket is not in sale");
+        require(isSaleOpen(_ticket_id) == true, "[T721] Ticket is not in sale");
 
         delete sale_by_ticket[_ticket_id];
 
@@ -258,12 +258,12 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     }
 
     function isSaleOpen(uint256 _ticket_id) public view returns (bool) {
-        return !(sale_by_ticket[_ticket_id] == 0 || block.number > sale_by_ticket[_ticket_id]);
+        return !(sale_by_ticket[_ticket_id] == 0 || block.timestamp > sale_by_ticket[_ticket_id]);
     }
 
     function buy(uint256 _ticket_id, address _buyer) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) zero(_buyer) {
-        require(isSaleOpen(_ticket_id) == true, "Ticket is not in sale");
-        require(_buyer != owner_by_ticket[_ticket_id], "You cannot buy your own ticket");
+        require(isSaleOpen(_ticket_id) == true, "[T721] Ticket is not in sale");
+        require(_buyer != owner_by_ticket[_ticket_id], "[T721] You cannot buy your own ticket");
 
         emit Buy(issuer_by_ticket[_ticket_id], _ticket_id, _buyer, owner_by_ticket[_ticket_id]);
 
@@ -365,7 +365,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     zero(_operator)
     {
         require(approvals_for_all_by_user[msg.sender][_operator] != _approved,
-            "Action has no effect. Seting approval flag to old value.");
+            "[T721] Action has no effect. Seting approval flag to old value.");
         if (!_approved) {
             delete approvals_for_all_by_user[msg.sender][_operator];
         } else {
@@ -457,7 +457,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     /// @return The token identifier for the `_index`th NFT,
     ///  (sort order not specified)
     function tokenByIndex(uint256 _index) public view returns (uint256) {
-        require(_index < totalSupply(), "Index out of range");
+        require(_index < totalSupply(), "[T721] Index out of range");
 
         return _index + 1;
     }
@@ -470,7 +470,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     /// @return The token identifier for the `_index`th NFT assigned to `_owner`,
     ///   (sort order not specified)
     function tokenOfOwnerByIndex(address _owner, uint256 _index) public view returns (uint256 _ticket_id) {
-        require(_index < balanceOf(_owner), "Index out of range");
+        require(_index < balanceOf(_owner), "[T721] Index out of range");
 
         uint256 real_idx = 0;
         for (uint256 idx = 0; idx < tickets_by_owner[_owner].length; ++idx) {
