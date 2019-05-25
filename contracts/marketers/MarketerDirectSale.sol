@@ -1,4 +1,4 @@
-// !@! MarketerDirectSale:Madisa:0.1.0:0.5.0:: !@!
+// !@! MarketerDirectSale:Madisa:0.1.0:0.5.0::price uint256,end uint256 !@!
 //
 //    /$$    /$$$$$$$$ /$$$$$$    /$$
 //   | $$   |_____ $$//$$__  $$ /$$$$
@@ -28,13 +28,13 @@ contract MarketerDirectSale is Marketer {
     }
 
     function sell(uint256 _ticket_id, uint256 _price, uint256 _end) public {
-        require(T721V0(t721).ownerOf(_ticket_id) == msg.sender, "You are not the owner of the ticket");
+        require(T721V0(t721).ownerOf(_ticket_id) == msg.sender, "[Madisa] You are not the owner of the ticket");
         T721V0(t721).openSale(_ticket_id, _end);
         price[_ticket_id] = _price;
     }
 
     function close(uint256 _ticket_id) public {
-        require(T721V0(t721).ownerOf(_ticket_id) == msg.sender, "You are not the owner of the ticket");
+        require(T721V0(t721).ownerOf(_ticket_id) == msg.sender, "[Madisa] You are not the owner of the ticket");
         T721V0(t721).closeSale(_ticket_id);
     }
 

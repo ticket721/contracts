@@ -525,7 +525,7 @@ contract('T721', () => {
                 const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverTester];
 
                 await event.mint({value: 1000});
-                await event.sell(1, 2000, 1000);
+                await event.sell(1, 2000, Math.floor(Date.now() / 1000) * (60 * 60));
 
                 return expect(T721.transferFrom(accounts[0], accounts[1], 1)).to.eventually.be.rejected;
 
@@ -836,13 +836,14 @@ contract('T721', () => {
 
     describe('[openSale]', () => {
 
-        it(`[event.mint Z value 1000] [event.sell 1 2000 1000] [isSaleOpen 1 == true] [event.getSellPrice 1 == 2000]`, async () => {
+        it(`[event.mint Z value 1000] [event.sell 1 2000 1HR] [isSaleOpen 1 == true] [event.getSellPrice 1 == 2000]`, async () => {
 
             const T721 = await instance(contract_name);
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
 
+            const end_time = Math.floor(Date.now() / 1000) * (60 * 60);
             await event.mint({value: 1000});
-            const res = await event.sell(1, 2000, 1000);
+            const res = await event.sell(1, 2000, end_time);
             const event_solidity = res.receipt.rawLogs[0];
             const event_signature = web3.utils.keccak256('Sale(address,uint256,address,uint256)').toLowerCase();
             const issuer_address = `0x000000000000000000000000${event.address.slice(2)}`.toLowerCase();
@@ -856,11 +857,11 @@ contract('T721', () => {
             expect((await event.getSellPrice(1)).toNumber()).to.equal(2000);
 
             const end = await T721.getSaleEnd(1);
-            expect(end.toNumber()).to.equal(1000);
+            expect(end.toNumber()).to.equal(end_time);
 
         });
 
-        it(`[event.mint Z value 1000] [event.sell 1 2000 1000] [isSaleOpen 1 == true] [event.test_closeSale 1] [isSaleOpen 1 == false]`, async () => {
+        it(`[event.mint Z value 1000] [event.test_closeSale 1] [ revert ]`, async () => {
 
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
 
@@ -869,13 +870,13 @@ contract('T721', () => {
 
         });
 
-        it(`[event.mint Z value 1000] [event.sell 1 2000 1000] [isSaleOpen 1 == true] [event.test_closeSale 1] [isSaleOpen 1 == false]`, async () => {
+        it(`[event.mint Z value 1000] [event.sell 1 2000 1 HR] [isSaleOpen 1 == true] [event.test_closeSale 1] [isSaleOpen 1 == false]`, async () => {
 
             const T721 = await instance(contract_name);
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
 
             await event.mint({value: 1000});
-            await event.sell(1, 2000, 1000);
+            await event.sell(1, 2000, Math.floor(Date.now() / 1000) * (60 * 60));
 
             await expect(T721.isSaleOpen(1)).to.eventually.be.true;
 
@@ -893,42 +894,42 @@ contract('T721', () => {
 
         });
 
-        it(`[event.mint Z value 1000] [event.sell 1 2000 1000] [event.sell 1 2000] [revert]`, async () => {
+        it(`[event.mint Z value 1000] [event.sell 1 2000 1HR] [event.sell 1 2000] [revert]`, async () => {
 
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
 
             await event.mint({value: 1000});
-            await event.sell(1, 2000, 1000);
-            return expect(event.sell(1, 2000, 1000)).to.eventually.be.rejected;
+            await event.sell(1, 2000, Math.floor(Date.now() / 1000) * (60 * 60));
+            return expect(event.sell(1, 2000, Math.floor(Date.now() / 1000) * (60 * 60))).to.eventually.be.rejected;
 
         });
 
-        it(`[event.mint Z value 1000] [event.sell 1 2000 1] [revert]`, async () => {
+        it(`[event.mint Z value 1000] [event.sell 1 2000 10SECINPAST] [revert]`, async () => {
 
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
 
             await event.mint({value: 1000});
-            return expect(event.sell(1, 2000, 1)).to.eventually.be.rejected;
+            return expect(event.sell(1, 2000, Math.floor(Date.now() / 1000) - 10)).to.eventually.be.rejected;
 
         });
 
-        it(`[event.mint Z value 1000] [openSale 1 1000] [revert]`, async () => {
+        it(`[event.mint Z value 1000] [openSale 1 1HR] [revert]`, async () => {
 
             const T721 = await instance(contract_name);
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
 
             await event.mint({value: 1000});
-            return expect(T721.openSale(1, 1000)).to.eventually.be.rejected;
+            return expect(T721.openSale(1, Math.floor(Date.now() / 1000) * (60 * 60))).to.eventually.be.rejected;
 
         });
 
-        it(`[event.mint Z value 1000] [anottherEvent.sell 1 2000 1000] [revert]`, async () => {
+        it(`[event.mint Z value 1000] [anottherEvent.sell 1 2000 1HR] [revert]`, async () => {
 
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
             const anotherEvent = events[event_names.MinterPayableFixed_MarketerTester_ApproverTester];
 
             await event.mint({value: 1000});
-            return expect(anotherEvent.sell(1, 2000, 1000)).to.eventually.be.rejected;
+            return expect(anotherEvent.sell(1, 2000, Math.floor(Date.now() / 1000) * (60 * 60))).to.eventually.be.rejected;
 
         });
 
@@ -943,7 +944,7 @@ contract('T721', () => {
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
 
             await event.mint({value: 1000});
-            await event.sell(1, 2000, 1000);
+            await event.sell(1, 2000, Math.floor(Date.now() / 1000) * (60 * 60));
             const res = await event.buy(1, {from: accounts[1], value: 2000});
             const event_solidity = res.receipt.rawLogs[0];
             const event_signature = web3.utils.keccak256('Buy(address,uint256,address,address)').toLowerCase();
@@ -965,7 +966,7 @@ contract('T721', () => {
             const event = events[event_names.MinterPayableFixed_MarketerTester_ApproverDisabled];
 
             await event.mint({value: 1000});
-            await event.sell(1, 2000, 1000);
+            await event.sell(1, 2000, Math.floor(Date.now() / 1000) * (60 * 60));
             return expect(event.buy(1, {from: accounts[0], value: 2000})).to.eventually.be.rejected;
 
         });

@@ -60,7 +60,7 @@ module.exports.simulation = async function simulation(debug) {
 
     const AdministrationBoardArtifact = Portalize.get.get('AdministrationBoardV0.artifact.json');
     const T721Artifact = Portalize.get.get('T721V0.artifact.json');
-    const EventArtifact = Portalize.get.get('Event_Mipafi_Mate_Apdi.artifact.json');
+    const EventArtifact = Portalize.get.get('Event_Mipafi_Madisa_Apdi.artifact.json');
 
     const AdministrationBoard = new web3.eth.Contract(AdministrationBoardArtifact.abi, AdministrationBoardArtifact.networks[network_infos.network_id].address, {
         gas: 0xfffff,
@@ -92,7 +92,7 @@ module.exports.simulation = async function simulation(debug) {
     report.event_type = 'Event_Mipafi_Mate_Apdi';
     const end = (Date.now() / 1000) + 60 * 60;
     for (let idx = 0; idx < events; ++idx) {
-        const address = await createEvent(T721.options.address, 10, 100000, end, Event, EventArtifact.bin, _accounts[Math.floor(Math.random() * accounts)]);
+        const address = await createEvent(T721.options.address, 10, 1000, end, Event, EventArtifact.bin, _accounts[Math.floor(Math.random() * accounts)]);
         report.events.push(address);
         _events.push(new web3.eth.Contract(EventArtifact.abi, address, {gas: 0xffffff, gasPrice}));
     }
@@ -136,7 +136,8 @@ module.exports.simulation = async function simulation(debug) {
     }
 
     const sell_list = [];
-    const action_types = ['transfer', 'sell', 'buy', 'close_sale'];
+    //const action_types = ['transfer', 'sell', 'buy', 'close_sale'];
+    const action_types = ['transfer', 'sell'];
 
     for (let idx = 0; idx < actions; ++idx) {
 
@@ -227,7 +228,8 @@ module.exports.simulation = async function simulation(debug) {
 
                     signale.info(`[${idx}][sell] from: ${selected_account} ticket: ${selected_id}`);
 
-                    await _events[_ticket_issuer[selected_id]].methods.sell(selected_id, 100, current_block + 10000000).send({
+                    const end_time = (Math.ceil((Math.random() + 0.0001) * 24) * 60 * 60) + Math.floor(Date.now() / 1000);
+                    await _events[_ticket_issuer[selected_id]].methods.sell(selected_id, 100, end_time).send({
                         from: selected_account,
                         gasPrice
                     });
@@ -320,7 +322,7 @@ module.exports.simulation = async function simulation(debug) {
 
                     signale.info(`[${idx}][close_sale] from: ${selected_account} ticket: ${selected_id}`);
 
-                    await _events[_ticket_issuer[selected_id]].methods.test_closeSale(selected_id).send({
+                    await _events[_ticket_issuer[selected_id]].methods.close(selected_id).send({
                         from: selected_account,
                         gasPrice
                     });
