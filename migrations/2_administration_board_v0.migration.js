@@ -1,5 +1,7 @@
 const { scripts, ConfigVariablesInitializer } = require('zos');
 const { add, push, create } = scripts;
+const {from_current} = require('../tasks/misc');
+const fs = require('fs');
 
 const {Portalize} = require('portalize');
 
@@ -11,11 +13,21 @@ async function deploy(options, net_config) {
     await push(options);
 
     // Create an instance of MyContract, setting initial value to 42
-    await create(Object.assign({ contractAlias: 'AdministrationBoard', initMethod: 'initialize', initArgs: [
+    const result = await create(Object.assign({ contractAlias: 'AdministrationBoard', initMethod: 'initialize', initArgs: [
             net_config.contract_infos.AdministrationBoard.initial_member,
             51
         ] }, options));
 
+    const raw_artifact = require('../build/contracts/AdministrationBoardV0');
+
+    raw_artifact.networks[net_config.network_id] = {
+        "links": {},
+        "events": {},
+        "address": result.address,
+        "updated_at": Date.now()
+    };
+
+   fs.writeFileSync(from_current('./build/contracts/AdministrationBoardV0.json'), JSON.stringify(raw_artifact, null, 4)) ;
 
 }
 
@@ -25,7 +37,7 @@ module.exports = async function(deployer, networkName) {
         Portalize.get.setPortal('../portal');
         Portalize.get.setModuleName('contracts');
 
-        deployer
+        await deployer
             .then(async () => {
                 const config = Portalize.get.get('network.json', {module: 'network'});
                 const {network, txParams} = await ConfigVariablesInitializer.initNetworkConfiguration({

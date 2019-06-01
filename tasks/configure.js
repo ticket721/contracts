@@ -1,6 +1,7 @@
 const signale = require('signale');
 const {local_configure} = require('./network/local');
 const {test_configure} = require('./network/test');
+const {ropsten_configure} = require('./network/ropsten');
 const combiner = require('../events');
 
 const configure = async () => {
@@ -13,6 +14,9 @@ const configure = async () => {
             break;
         case 'test':
             await test_configure();
+            break;
+        case 'ropsten':
+            await ropsten_configure();
             break;
         default:
             throw new Error(`Unknown Network ${process.env.T721_NETWORK}`)

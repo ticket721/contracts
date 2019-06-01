@@ -20,7 +20,9 @@ const artifacter = async () => {
             abi: artifact.abi,
             bin: artifact.bytecode,
             runtimeBin: artifact.deployedBytecode,
-            networks: artifact.networks
+            networks: artifact.networks,
+            source: artifact,
+            source_name: artifact_file
         };
 
         let desc = undefined;
@@ -31,6 +33,29 @@ const artifacter = async () => {
         Portalize.get.add(`${artifact.contractName}.artifact.json`, reformat, {desc});
 
     }
+
+    const config_files = fs.readdirSync(from_current('.'));
+
+    const zos_data = [
+
+    ];
+
+    for (const file of config_files) {
+        if (file.match(/zos\..+\.json/)) {
+            const content = JSON.parse(fs.readFileSync(from_current(`/${file}`)).toString());
+            zos_data.push({
+                content,
+                name: file
+            })
+        }
+    }
+
+    Portalize.get.add(`zos.artifact.json`, zos_data);
+
+    if (process.env.T721_NETWORK === 'ropsten') {
+        fs.unlinkSync(from_current('truffle-config.js'));
+    }
+
 };
 
 module.exports = artifacter;

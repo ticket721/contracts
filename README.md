@@ -82,3 +82,8 @@ env T721_NETWORK=test gulp contracts:configure
 npm run test:solidity-coverage
 ```
 
+#### Deploying on ropsten
+
+You should use the env's `gulp deploy_ropsten` task to do this
+
+#### Scotch Section 
