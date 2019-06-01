@@ -9,12 +9,18 @@ const {Portalize} = require('portalize');
 
 async function deploy(options, net_config) {
 
-    const AdministrationBoard = artifacts.require('./AdministrationBoardV0');
+    const abartifact = require('../build/contracts/AdministrationBoardV0');
+
+    if (!abartifact.networks || !abartifact.networks[net_config.network_id]) {
+        throw new Error('Missing network configuration');
+    }
+
+    //const AdministrationBoard = artifacts.require('./AdministrationBoardV0');
 
     await push(options);
 
     const res = await create(Object.assign({ contractAlias: 'T721', initMethod: 'initialize', initArgs: [
-            AdministrationBoard.address,
+            abartifact.networks[net_config.network_id].address,
             'Ticket 721',
             't721',
             net_config.server
@@ -28,24 +34,23 @@ async function deploy(options, net_config) {
         const artifact = require(event[1]);
         const bytecode = artifact.deployedBytecode;
         const bytes = Buffer.from(bytecode.slice(2), 'hex');
-
         signale.info(`Registering Bytecode for ${event[0]} ...`);
         await res.methods.set_event_code(bytes, true).send({
-            gas: 0xffffffff,
+            gas: net_config.network_gas || 0xffffffff,
             from: net_config.contract_infos.AdministrationBoard.initial_member
         });
         signale.success(`Registered Bytecode for ${event[0]}`);
-    }
 
+    }
 }
 
-module.exports = function(deployer, networkName) {
+module.exports = async function(deployer, networkName) {
     if (networkName !== 'test' && networkName !== 'development') {
 
         Portalize.get.setPortal('../portal');
         Portalize.get.setModuleName('contracts');
 
-        deployer.then(async () => {
+        await deployer.then(async () => {
             const config = Portalize.get.get('network.json', {module: 'network'});
             const {network, txParams} = await ConfigVariablesInitializer.initNetworkConfiguration({
                 network: networkName,
