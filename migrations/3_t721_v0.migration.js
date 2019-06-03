@@ -26,6 +26,10 @@ async function deploy(options, net_config) {
             net_config.server
         ] }, options));
 
+    const current_block = await web3.eth.getBlockNumber();
+
+    Portalize.get.add(`T721V0.height.json`, {height: current_block - 1 > 0 ? current_block - 1 : 0});
+
     const event_types = fs.readdirSync(from_current('./build/contracts'))
         .filter(filename => filename.indexOf('Event_') === 0)
         .map(filename => [filename, path.join(from_current('./build/contracts'), filename)]);

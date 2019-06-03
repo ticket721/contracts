@@ -64,15 +64,9 @@ const apply_config = async () => {
                         return new HDWalletProvider("${mnemonic}", "${config.url}", 0, 2)
                     },
                     network_id: ${config.network_id},
-                    gas: ${config.network_gas}
-                },
-                "ropsten-fork": {
-                    provider: function() {
-                        return new HDWalletProvider("${mnemonic}", "${config.url}", 0, 2)
-                    },
-                    network_id: ${config.network_id},
-                    gas: ${config.network_gas}
-                } 
+                    gas: ${config.network_gas},
+                    skipDryRun: true
+                }
             },
         
             "mocha": {},

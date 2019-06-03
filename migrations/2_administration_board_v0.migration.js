@@ -18,6 +18,10 @@ async function deploy(options, net_config) {
             51
         ] }, options));
 
+    const current_block = await web3.eth.getBlockNumber();
+
+    Portalize.get.add(`AdministrationBoardV0.height.json`, {height: current_block - 1 > 0 ? current_block - 1 : 0});
+
     const raw_artifact = require('../build/contracts/AdministrationBoardV0');
 
     raw_artifact.networks[net_config.network_id] = {
