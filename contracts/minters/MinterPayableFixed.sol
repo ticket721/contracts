@@ -36,7 +36,7 @@ contract MinterPayableFixed is Minter {
         require(tickets_sold < ticket_cap, "All tickets sold out");
         utility.i_do_not_keep_the_change(sell_price);
 
-        T721V0(t721).mint(msg.sender);
+        T721V0(t721).mint(msg.sender, sell_price, address(0));
         tickets_sold += 1;
     }
 

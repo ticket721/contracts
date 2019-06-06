@@ -253,7 +253,7 @@ contract('T721', () => {
             it('[balancOf Z] [mint Z] [1]', async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 expect((await T721.balanceOf(accounts[0])).toNumber())
                     .to.equal(1);
 
@@ -263,9 +263,9 @@ contract('T721', () => {
 
                 const T721 = await instance(contract_name);
 
-                await T721.mint(accounts[0]);
-                await T721.mint(accounts[0]);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
+                await T721.mint(accounts[0], 0, ZEROS);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 await T721.transferFrom(accounts[0], accounts[1], 2);
 
@@ -289,7 +289,7 @@ contract('T721', () => {
             it('[mint Z] [ownerOf 1 == Z]', async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 return expect(T721.ownerOf(1))
                     .to.eventually.equal(accounts[0]);
 
@@ -316,7 +316,7 @@ contract('T721', () => {
             it('[mint Z] [exists 1 == true]', async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 return expect(T721.exists(1)).to.eventually.be.true;
 
             });
@@ -342,7 +342,7 @@ contract('T721', () => {
             it(`[mint Z] [approve One 1 from Z] [getApproved 1 == One]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 const res = await T721.approve(accounts[1], 1);
                 assert.web3Event(res, {
                     event: 'Approval',
@@ -379,7 +379,7 @@ contract('T721', () => {
             it(`[mint Z] [approve ${ZEROS} 1 from Z] [revert]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 return expect(T721.approve(ZEROS, 1)).to.eventually.be.rejected;
 
             });
@@ -387,7 +387,7 @@ contract('T721', () => {
             it(`[mint Z] [approve One 1 from Z] [getApproved 1 == One] [approve ${ZEROS} 1 from Z] [getApproved 1 == ${ZEROS}]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 await T721.approve(accounts[1], 1);
                 await expect(T721.getApproved(1)).to.eventually.equal(accounts[1]);
                 await T721.approve(ZEROS, 1);
@@ -465,7 +465,7 @@ contract('T721', () => {
             it(`[mint Z] [transferFrom Z One 1 from One] [revert]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 return expect(T721.transferFrom(accounts[0], accounts[1], 1, {from: accounts[1]})).to.eventually.be.rejected;
 
             });
@@ -473,7 +473,7 @@ contract('T721', () => {
             it(`[mint Z] [transferFrom ${ZEROS} One 1 from Z] [revert]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 return expect(T721.transferFrom(ZEROS, accounts[1], 1)).to.eventually.be.rejected;
 
             });
@@ -481,7 +481,7 @@ contract('T721', () => {
             it(`[mint Z] [transferFrom Z ${ZEROS} 1 from Z] [revert]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 return expect(T721.transferFrom(accounts[0], ZEROS, 1)).to.eventually.be.rejected;
 
             });
@@ -489,7 +489,7 @@ contract('T721', () => {
             it(`[mint Z] [transferFrom One Z 1 from Z] [revert]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 return expect(T721.transferFrom(accounts[1], accounts[0], 1)).to.eventually.be.rejected;
 
             });
@@ -534,7 +534,7 @@ contract('T721', () => {
             it(`[mint Z] [transferFrom Z One 1 from Z] [balanceOf One == 1] [balanceOf Z == 0]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 const res = await T721.transferFrom(accounts[0], accounts[1], 1);
                 assert.web3Event(res, {
@@ -560,7 +560,7 @@ contract('T721', () => {
             it(`[mint Z] [approve Two 1 from Z] [transferFrom Z One 1 from Two] [balanceOf One == 1] [balanceOf Z == 0] [getApproved 1 == ${ZEROS}]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 await T721.approve(accounts[2], 1);
                 await T721.transferFrom(accounts[0], accounts[1], 1, {from: accounts[2]});
                 expect((await T721.balanceOf(accounts[1])).toNumber()).to.equal(1);
@@ -572,7 +572,7 @@ contract('T721', () => {
             it(`[mint Z] [setApprovalForAll Two true from Z] [transferFrom Z One 1 from Two] [balanceOf One == 1] [balanceOf Z == 0]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
                 await T721.setApprovalForAll(accounts[2], true);
                 await T721.transferFrom(accounts[0], accounts[1], 1, {from: accounts[2]});
                 expect((await T721.balanceOf(accounts[1])).toNumber()).to.equal(1);
@@ -587,7 +587,7 @@ contract('T721', () => {
             it(`[mint Z] [safeTransferFrom Z TERCR 1 from Z] [balanceOf TERCR == 1] [balanceOf Z == 0] [TERCR.last_received_token == 1] [TERCR.last_received_data == null]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 await T721.methods['safeTransferFrom(address,address,uint256)'](accounts[0], testERC721Receiver.address, 1);
                 expect((await T721.balanceOf(testERC721Receiver.address)).toNumber()).to.equal(1);
@@ -600,7 +600,7 @@ contract('T721', () => {
             it(`[mint Z] [safeTransferFrom Z BTERCR 1 from Z] [revert]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 return expect(T721.methods['safeTransferFrom(address,address,uint256)'](accounts[0], badTestERC721Receiver.address, 1)).to.eventually.be.rejected;
 
@@ -609,7 +609,7 @@ contract('T721', () => {
             it(`[mint Z] [safeTransferFrom Z TERCR 1 "0xabcd" from Z] [balanceOf TERCR == 1] [balanceOf Z == 0] [TERCR.last_received_token == 1] [TERCR.last_received_data == 0xabcd]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 await T721.methods['safeTransferFrom(address,address,uint256,bytes)'](accounts[0], testERC721Receiver.address, 1, '0xabcd');
                 expect((await T721.balanceOf(testERC721Receiver.address)).toNumber()).to.equal(1);
@@ -622,7 +622,7 @@ contract('T721', () => {
             it(`[mint Z] [safeTransferFrom Z BTERCR 1 "0xabcd" from Z] [revert]`, async () => {
 
                 const T721 = await instance(contract_name);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 return expect(T721.methods['safeTransferFrom(address,address,uint256,bytes)'](accounts[0], badTestERC721Receiver.address, 1, '0xabcd')).to.eventually.be.rejected;
 
@@ -647,11 +647,11 @@ contract('T721', () => {
 
                 const T721 = await instance(contract_name);
 
-                await T721.mint(accounts[0]);
-                await T721.mint(accounts[1]);
-                await T721.mint(accounts[2]);
-                await T721.mint(accounts[3]);
-                await T721.mint(accounts[4]);
+                await T721.mint(accounts[0], 0, ZEROS);
+                await T721.mint(accounts[1], 0, ZEROS);
+                await T721.mint(accounts[2], 0, ZEROS);
+                await T721.mint(accounts[3], 0, ZEROS);
+                await T721.mint(accounts[4], 0, ZEROS);
 
                 expect((await T721.totalSupply()).toNumber()).to.equal(5);
 
@@ -673,7 +673,7 @@ contract('T721', () => {
 
                 const T721 = await instance(contract_name);
 
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 expect((await T721.tokenByIndex(0)).toNumber()).to.equal(1);
 
@@ -695,7 +695,7 @@ contract('T721', () => {
 
                 const T721 = await instance(contract_name);
 
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 expect((await T721.tokenOfOwnerByIndex(accounts[0], 0)).toNumber()).to.equal(1);
 
@@ -705,11 +705,11 @@ contract('T721', () => {
 
                 const T721 = await instance(contract_name);
 
-                await T721.mint(accounts[0]);
-                await T721.mint(accounts[0]);
-                await T721.mint(accounts[0]);
-                await T721.mint(accounts[0]);
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
+                await T721.mint(accounts[0], 0, ZEROS);
+                await T721.mint(accounts[0], 0, ZEROS);
+                await T721.mint(accounts[0], 0, ZEROS);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 await T721.transferFrom(accounts[0], accounts[1], 2);
 
@@ -761,7 +761,7 @@ contract('T721', () => {
 
                 const T721 = await instance(contract_name);
 
-                await T721.mint(accounts[0]);
+                await T721.mint(accounts[0], 0, ZEROS);
 
                 return expect(T721.tokenURI(1)).to.eventually.equal('');
 
@@ -810,15 +810,19 @@ contract('T721', () => {
 
             const res = await event.mint({value: 1000});
             const event_solidity = res.receipt.rawLogs[0];
-            const event_signature = web3.utils.keccak256('Mint(address,uint256,address)').toLowerCase();
+            const event_signature = web3.utils.keccak256('Mint(address,uint256,address,uint256,address)').toLowerCase();
             const issuer_address = `0x000000000000000000000000${event.address.slice(2)}`.toLowerCase();
             const token_id = '0x0000000000000000000000000000000000000000000000000000000000000001';
             const owner = `0x000000000000000000000000${accounts[0].slice(2)}`.toLowerCase();
+            const price = `00000000000000000000000000000000000000000000000000000000000003e8`.toLowerCase();
+            const currency = `000000000000000000000000${ZEROS.slice(2)}`.toLowerCase();
 
             expect(event_solidity.topics[0]).to.equal(event_signature);
             expect(event_solidity.topics[1]).to.equal(issuer_address);
             expect(event_solidity.topics[2]).to.equal(token_id);
             expect(event_solidity.topics[3]).to.equal(owner);
+            expect(event_solidity.data.slice(2, 2 + 64)).to.equal(price);
+            expect(event_solidity.data.slice(2 + 64)).to.equal(currency);
 
             const issuer = await T721.getIssuer(1);
             expect(issuer).to.equal(event.address);
