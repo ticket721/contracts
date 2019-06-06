@@ -217,12 +217,12 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     //    |  $$$$//$$/    | $$$$$$$$ /$$$$$$
     //     \___/ |__/     |________/|______/
 
-    event Mint(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner);
+    event Mint(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner, uint256 _price, address _currency);
     event Sale(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner, uint256 _end);
     event SaleClose(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner);
     event Buy(address indexed _issuer, uint256 indexed _ticket_id, address indexed _new_owner, address _old_owner);
 
-    function mint(address _to) public
+    function mint(address _to, uint256 _price, address _currency) public
     zero(_to)
     returns (uint256)
     {
@@ -232,7 +232,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         issuer_by_ticket[ticket_id] = msg.sender;
         index_by_ticket[ticket_id] = ticket_index;
 
-        emit Mint(issuer_by_ticket[ticket_id], ticket_id, _to);
+        emit Mint(issuer_by_ticket[ticket_id], ticket_id, _to, _price, _currency);
         emit Transfer(msg.sender, _to, ticket_id);
 
         ++ticket_id;

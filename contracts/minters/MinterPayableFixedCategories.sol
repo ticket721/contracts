@@ -46,7 +46,7 @@ contract MinterPayableFixedCategories is Minter {
         require(tickets_sold[ticket_type] < ticket_caps[ticket_type], "All tickets sold out");
         utility.i_do_not_keep_the_change(sell_prices[ticket_type]);
 
-        uint256 id = T721V0(t721).mint(msg.sender);
+        uint256 id = T721V0(t721).mint(msg.sender, sell_prices[ticket_type], address(0));
         tickets_sold[ticket_type] += 1;
         id_to_type[id] = ticket_type;
     }
