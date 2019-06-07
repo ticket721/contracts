@@ -23,7 +23,7 @@ contract MarketerTester is Marketer {
 
     function buy(uint256 _ticket_id) public payable {
         utility.i_do_not_keep_the_change(price[_ticket_id]);
-        T721V0(t721).buy(_ticket_id, msg.sender);
+        T721V0(t721).buy(_ticket_id, msg.sender, price[_ticket_id], address(0));
         delete price[_ticket_id];
     }
 

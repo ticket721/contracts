@@ -951,15 +951,17 @@ contract('T721', () => {
             await event.sell(1, 2000, Math.floor(Date.now() / 1000) * (60 * 60));
             const res = await event.buy(1, {from: accounts[1], value: 2000});
             const event_solidity = res.receipt.rawLogs[0];
-            const event_signature = web3.utils.keccak256('Buy(address,uint256,address,address)').toLowerCase();
+            const event_signature = web3.utils.keccak256('Buy(address,uint256,address,address,uint256,address)').toLowerCase();
             const issuer_address = `0x000000000000000000000000${event.address.slice(2)}`.toLowerCase();
             const token_id = '0x0000000000000000000000000000000000000000000000000000000000000001';
             const new_owner = `0x000000000000000000000000${accounts[1].slice(2)}`.toLowerCase();
+            const data = `0x000000000000000000000000${accounts[0].slice(2)}00000000000000000000000000000000000000000000000000000000000007d00000000000000000000000000000000000000000000000000000000000000000`;
 
             expect(event_solidity.topics[0]).to.equal(event_signature);
             expect(event_solidity.topics[1]).to.equal(issuer_address);
             expect(event_solidity.topics[2]).to.equal(token_id);
             expect(event_solidity.topics[3]).to.equal(new_owner);
+            expect(event_solidity.data.toLowerCase()).to.equal(data.toLowerCase());
 
             return expect(T721.isSaleOpen(1)).to.eventually.be.false;
 

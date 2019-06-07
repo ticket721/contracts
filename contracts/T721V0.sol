@@ -220,7 +220,7 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
     event Mint(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner, uint256 _price, address _currency);
     event Sale(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner, uint256 _end);
     event SaleClose(address indexed _issuer, uint256 indexed _ticket_id, address indexed _owner);
-    event Buy(address indexed _issuer, uint256 indexed _ticket_id, address indexed _new_owner, address _old_owner);
+    event Buy(address indexed _issuer, uint256 indexed _ticket_id, address indexed _new_owner, address _old_owner, uint256 _price, address _currency);
 
     function mint(address _to, uint256 _price, address _currency) public
     zero(_to)
@@ -261,11 +261,11 @@ contract T721V0 is Initializable, ERC165, ERC721Basic {
         return !(sale_by_ticket[_ticket_id] == 0 || block.timestamp > sale_by_ticket[_ticket_id]);
     }
 
-    function buy(uint256 _ticket_id, address _buyer) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) zero(_buyer) {
+    function buy(uint256 _ticket_id, address _buyer, uint256 _price, address _currency) public eventOnly ticket(_ticket_id) ticket_exists(_ticket_id) issuer(_ticket_id) zero(_buyer) {
         require(isSaleOpen(_ticket_id) == true, "[T721] Ticket is not in sale");
         require(_buyer != owner_by_ticket[_ticket_id], "[T721] You cannot buy your own ticket");
 
-        emit Buy(issuer_by_ticket[_ticket_id], _ticket_id, _buyer, owner_by_ticket[_ticket_id]);
+        emit Buy(issuer_by_ticket[_ticket_id], _ticket_id, _buyer, owner_by_ticket[_ticket_id], _price, _currency);
 
         approved_by_ticket[_ticket_id] = msg.sender;
         delete sale_by_ticket[_ticket_id];
