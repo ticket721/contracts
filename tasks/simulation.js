@@ -90,8 +90,8 @@ module.exports.simulation = async function simulation(debug) {
 
     report.events = [];
     report.event_type = 'Event_Mipafi_Mate_Apdi';
-    const end = (Date.now() / 1000) + 60 * 60;
     for (let idx = 0; idx < events; ++idx) {
+        const end = (Date.now() / 1000) + (60 * 60) * (Math.floor(Math.random() * 100 % 10) + 1);
         const address = await createEvent(T721.options.address, 10, 1000, end, Event, EventArtifact.bin, _accounts[Math.floor(Math.random() * accounts)]);
         report.events.push(address);
         _events.push(new web3.eth.Contract(EventArtifact.abi, address, {gas: 0xffffff, gasPrice}));
