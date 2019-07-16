@@ -1,7 +1,7 @@
 {
     "name": "@ticket721/contracts",
     "private": true,
-    "version": "1.0.0",
+    "version": "0.1.0",
     "description": "contracts - Ethereum Smart Contracts for ticket721",
     "main": "index.js",
     "scripts": {
